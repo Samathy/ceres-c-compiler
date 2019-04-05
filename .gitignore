@@ -1,0 +1,14 @@
+.dub
+docs.json
+__dummy.html
+docs/
+c_lex.so
+c_lex.dylib
+c_lex.dll
+c_lex.a
+c_lex.lib
+c_lex-test-*
+*.exe
+*.o
+*.obj
+*.lst

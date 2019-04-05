@@ -1,0 +1,9 @@
+{
+	"description": "A C lexer",
+	"license": "MIT",
+	"authors": [
+		"samathy"
+	],
+	"copyright": "Copyright © 2019, samathy",
+	"name": "c_lex"
+}
