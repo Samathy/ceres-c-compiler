@@ -173,6 +173,10 @@ template state(Range, RangeChar) if (isInputRange!Range && isSomeChar!RangeChar)
         };
 
         state opCall()
+        in
+        {
+        }
+        body
         {
             return new state(this.f, this.emission_function);
         }
@@ -210,7 +214,7 @@ template start(Range, RangeChar) if (isInputRange!Range && isSomeChar!RangeChar)
     class start : state!(Range, RangeChar)
     {
         import std.conv : to;
-        import std.uni : isAlpha, isNumber, isWhite;
+        import std.uni : isAlpha, isNumber, isWhite, isPunctuation;
         import c_lex.token;
 
         this(Range f, void delegate(token t) emission_function)
@@ -253,7 +257,7 @@ template start(Range, RangeChar) if (isInputRange!Range && isSomeChar!RangeChar)
                     return next_state;
                 case '1': .. case '9':
                     auto next_state = new isInteger!(Range,
-                            RangeChar)(f, this.emission_function);
+                            RangeChar)(this.f, this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
                 default:
@@ -263,6 +267,24 @@ template start(Range, RangeChar) if (isInputRange!Range && isSomeChar!RangeChar)
             else if (isWhite(c)) //Igore whitespace.
             {
                 return this.ignore();
+            }
+            else if (isPunctuation(c))
+            {
+                this.f.popFront();
+
+                switch (c)
+                {
+                case ')':
+                case '}':
+                case ']':
+                    auto next_state = new isRparen!(Range, RangeChar)(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
+                default:
+                    throw new stateException("Unexpected punctuation character.");
+
+                }
             }
 
             throw new stateException("Unexpected character");
@@ -719,6 +741,124 @@ unittest
     testEmissionState!(isInteger!(char[], char), char[], char)(cases);
 }
 
+template isRparen(Range, RangeChar) if (isInputRange!Range && isSomeChar!RangeChar)
+{
+
+    class isRparen : state!(Range, RangeChar)
+    {
+        import std.algorithm : canFind;
+        import c_lex.token : rparen, token;
+        import c_lex.location : loc;
+
+        this(Range f, void delegate(token t) emission_function)
+        {
+            super(f, emission_function);
+        }
+
+        override state!(Range, RangeChar) opCall()
+        in
+        {
+            assert(this.character_buffer.length == 1);
+            assert(canFind([')', '}', ']'], this.character_buffer[0]));
+        }
+        body
+        {
+            loc l;
+
+            this.emit(new rparen(l, cast(immutable RangeChar[]) this.character_buffer));
+
+            //We already have our char in the buffer, so should be all okay!
+            auto new_state = new start!(Range, RangeChar)(this.f, this.emission_function);
+            return new_state;
+        }
+    }
+}
+
+unittest
+{
+
+    tcase caseOne = {
+    input:
+        cast(char[]) ")", char_buffer_expected : cast(char[]) ")", throws : false, emits : true,
+    emits_class : "rparen", emitted_token_count : 1, prefilled_char_buffer : cast(char[]) ")"};
+        tcase caseTwo = {
+        input:
+            cast(char[]) "}", char_buffer_expected : cast(char[]) "}", throws : false, emits : true, emits_class
+                : "rparen", emitted_token_count : 1, prefilled_char_buffer : cast(char[]) "}"
+    };
+    tcase caseThree = {
+    input:
+        cast(char[]) "]", char_buffer_expected : cast(char[]) "]", throws : false, emits : true,
+    emits_class : "rparen", emitted_token_count : 1, prefilled_char_buffer : cast(char[]) "]"
+        };
+        tcase caseFour = {input:
+        cast(char[]) "i", throws : true
+    };
+
+    tcase[4] cases = [caseOne, caseTwo, caseThree, caseFour];
+
+    testEmissionState!(isRparen!(char[], char), char[], char)(cases);
+}
+
+template isLparen(Range, RangeChar) if (isInputRange!Range && isSomeChar!RangeChar)
+{
+
+    class isLparen : state!(Range, RangeChar)
+    {
+        import std.algorithm : canFind;
+        import c_lex.token : lparen, token;
+        import c_lex.location : loc;
+
+        this(Range f, void delegate(token t) emission_function)
+        {
+            super(f, emission_function);
+        }
+
+        override state!(Range, RangeChar) opCall()
+        in
+        {
+            assert(this.character_buffer.length == 1);
+            assert(canFind(['(', '{', '['], this.character_buffer[0]));
+        }
+        body
+        {
+            loc l;
+
+            this.emit(new lparen(l, cast(immutable RangeChar[]) this.character_buffer));
+
+            //We already have our char in the buffer, so should be all okay!
+            auto new_state = new start!(Range, RangeChar)(this.f, this.emission_function);
+            return new_state;
+        }
+    }
+}
+
+unittest
+{
+
+    tcase caseOne = {
+    input:
+        cast(char[]) "(", char_buffer_expected : cast(char[]) "(", throws : false, emits : true,
+    emits_class : "lparen", emitted_token_count : 1, prefilled_char_buffer : cast(char[]) "("};
+        tcase caseTwo = {
+        input:
+            cast(char[]) "{", char_buffer_expected : cast(char[]) "{", throws : false, emits : true, emits_class
+                : "lparen", emitted_token_count : 1, prefilled_char_buffer : cast(char[]) "{"
+    };
+    tcase caseThree = {
+    input:
+        cast(char[]) "[", char_buffer_expected : cast(char[]) "[", throws : false, emits : true,
+    emits_class : "lparen", emitted_token_count : 1, prefilled_char_buffer : cast(char[]) "["
+        };
+        tcase caseFour = {input:
+        cast(char[]) "i", throws : true
+    };
+
+    tcase[4] cases = [caseOne, caseTwo, caseThree, caseFour];
+
+    testEmissionState!(isLparen!(char[], char), char[], char)(cases);
+}
+
 version (unittest)
 {
     /* Container for test parameters */
@@ -753,6 +893,8 @@ version (unittest)
                 auto I = new testcaseState!(Range, RangeChar)(testcase.input, (token) {
                     return;
                 });
+
+                I.character_buffer = testcase.prefilled_char_buffer;
 
                 try
                 {
