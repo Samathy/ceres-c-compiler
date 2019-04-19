@@ -55,6 +55,24 @@ unittest
     assert(t.toString() == "TOKEN");
 }
 
+class keyword : token
+{
+    this(loc location)
+    {
+        super(location);
+    }
+}
+
+class IF : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
 class id : token
 {
     this(loc location, string token_string)
@@ -199,10 +217,54 @@ class integer : token
         this.token_string = token_string;
     }
 
+    override string toString()
+    {
+        return this.type_string ~ "(" ~ this.token_string ~ ")";
+    }
+
     private
     {
         string token_string;
     }
+}
+
+unittest
+{
+    auto t = new integer(loc(10, 10, "foo.c"), "10");
+
+    assert(t.toString() == "INTEGER(10)");
+}
+
+class hexInteger : integer
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string);
+    }
+
+}
+
+unittest
+{
+    auto t = new hexInteger(loc(10, 10, "foo.c"), "10");
+
+    assert(t.toString() == "HEXINTEGER(10)");
+}
+
+class octInteger : integer
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string);
+    }
+
+}
+
+unittest
+{
+    auto t = new octInteger(loc(10, 10, "foo.c"), "10");
+
+    assert(t.toString() == "OCTINTEGER(10)");
 }
 
 class boolean : token
@@ -213,10 +275,22 @@ class boolean : token
         this.token_string = token_string;
     }
 
+    override string toString()
+    {
+        return this.type_string ~ "(" ~ this.token_string ~ ")";
+    }
+
     private
     {
         string token_string;
     }
+}
+
+unittest
+{
+    auto t = new boolean(loc(10, 10, "foo.c"), "true");
+
+    assert(t.toString() == "BOOLEAN(true)");
 }
 
 abstract class operator : token
@@ -278,4 +352,31 @@ unittest
     auto t = new plus(loc(10, 10, "foo.c"), "+");
 
     assert(t.toString() == "PLUS(+)");
+}
+
+class punctuator : token
+{
+    this(loc location, string token_string)
+    {
+        super(location);
+
+        this.token_string = token_string;
+    }
+
+    override string toString()
+    {
+        return this.type_string ~ "(" ~ this.token_string ~ ")";
+    }
+
+    private
+    {
+        string token_string;
+    }
+}
+
+unittest
+{
+    auto t = new punctuator(loc(10, 10, "foo.c"), ";");
+
+    assert(t.toString() == "PUNCTUATOR(;)");
 }
