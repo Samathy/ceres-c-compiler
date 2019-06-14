@@ -281,8 +281,26 @@ template start(Range, RangeChar) if (isInputRange!Range && isSomeChar!RangeChar)
                             this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
+                case '(':
+                case '{':
+                case '[':
+                    auto next_state = new isLparen!(Range, RangeChar)(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
+                case '+':
+                case '-':
+                case '=':
+                case '<':
+                case '>':
+                case '^':
+                case '&':
+                case '|':
+                    auto next_state = new isOperator!(Range, RangeChar)(this.f, this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
                 default:
-                    throw new stateException("Unexpected punctuation character.");
+                    throw new stateException("Unexpected punctuation character.: " ~ c);
 
                 }
             }
@@ -858,6 +876,117 @@ unittest
 
     testEmissionState!(isLparen!(char[], char), char[], char)(cases);
 }
+
+
+template isOperator(Range, RangeChar) if (isInputRange!Range && isSomeChar!RangeChar)
+{
+
+    class isOperator : state!(Range, RangeChar)
+    {
+        import c_lex.token : operator, comparason, token;
+        import c_lex.location : loc;
+
+        this(Range f, void delegate(token t) emission_function)
+        {
+            super(f, emission_function);
+        }
+
+        override state!(Range, RangeChar) opCall()
+        in
+        {
+            assert(this.character_buffer.length == 1);
+        }
+        body
+        {
+            loc l;
+
+            switch(this.character_buffer[0])
+            {
+                case '+':
+                case '-':
+                case '%':
+                    this.emit(new operator(l, cast(immutable char[])this.character_buffer));
+                    return new start!(Range, RangeChar)(this.f, this.emission_function);
+                case '=':
+                case '>':
+                case '<':
+                    this.emit(new comparason(l, cast(immutable char[])this.character_buffer));
+                    return new start!(Range, RangeChar)(this.f, this.emission_function);
+                case '&':
+                case'|':
+                    if (this.character_buffer[0] == this.f.front())
+                    {
+                        auto new_state = new logical!(Range, RangeChar)(this.f, this.emission_function);
+                        new_state.character_buffer = this.character_buffer;
+                        return new_state;
+                    }
+                    else
+                    {
+                        this.emit(new operator(l, cast(immutable char[])this.character_buffer));
+                        return new start!(Range, RangeChar)(this.f, this.emission_function);
+                    }
+                default:
+                    throw new stateException("Unknown operator: " ~ this.character_buffer[0]); //Please remove this.
+            }
+
+        }
+    }
+}
+
+unittest
+{
+
+    tcase caseOne = { input: cast(char[])" 10", throws: false, emits: true, emits_class: "operator", prefilled_char_buffer: cast(char[]) "+", char_buffer_expected: cast(char[]) "+"};
+
+    tcase[1] cases = [caseOne];
+
+    testEmissionState!(isOperator!(char[], char), char[],char)(cases);
+}
+
+template logical(Range, RangeChar) if (isInputRange!Range && isSomeChar!RangeChar)
+{
+
+    class logical : state!(Range, RangeChar)
+    {
+
+        import c_lex.token: operator, token;
+        import c_lex.location: loc;
+
+        this(Range f, void delegate(token t) emission_function)
+        {
+            super(f, emission_function);
+        }
+
+        override state!(Range, RangeChar) opCall()
+        in
+        {
+            assert(this.character_buffer.length == 1);
+        }
+        body
+        {
+            loc l;
+            auto c = this.f.front();
+            this.f.popFront();
+            if ( this.character_buffer[0] == c )
+            {
+                string character_pair;
+                this.emit(new operator(l, character_pair ~ this.character_buffer[0] ~ c));
+            }
+
+            return new start!(Range, RangeChar)(this.f, this.emission_function);
+        }
+    }
+
+}
+
+unittest
+{
+
+    assert(false, "Write me");
+
+}
+
+
 
 version (unittest)
 {

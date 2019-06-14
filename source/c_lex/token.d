@@ -293,7 +293,7 @@ unittest
     assert(t.toString() == "BOOLEAN(true)");
 }
 
-abstract class operator : token
+class operator : token
 {
     this(loc location, string token_string)
     {
@@ -333,26 +333,33 @@ abstract class operator : token
     }
 }
 
-class plus : operator
+class comparason: token
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        this.token_string = token_string;
+        super(location);
+    }
+
+    override string toString()
+    {
+        return this.type_string ~ "(" ~ this.token_string ~ ")";
     }
 
     private
     {
-        immutable string[] allowed_operators = ["+"];
         string token_string;
     }
 }
 
 unittest
 {
-    auto t = new plus(loc(10, 10, "foo.c"), "+");
+    auto t = new comparason(loc(10,10,"foo.c"), "=");
 
-    assert(t.toString() == "PLUS(+)");
+    import std.stdio: writeln;
+    assert(t.toString() == "COMPARASON(=)");
 }
+
 
 class punctuator : token
 {
