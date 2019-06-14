@@ -5,5 +5,13 @@
 		"samathy"
 	],
 	"copyright": "Copyright © 2019, samathy",
-	"name": "c_lex"
+	"name": "c_lex",
+    "configurations": [
+        {
+        "name":"integrationTest",
+        "mainSourceFile":"source/test_main.d",
+        "targetType": "executable"
+        }
+    ]
+
 }
