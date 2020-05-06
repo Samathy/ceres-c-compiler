@@ -1019,7 +1019,7 @@ version (unittest)
 
             foreach (testcase; cases)
             {
-                auto I = new testcaseState!(Range, RangeChar)(testcase.input, (token) {
+                auto I = new testcaseState(testcase.input, (token) {
                     return;
                 });
 
@@ -1059,7 +1059,7 @@ version (unittest)
 
             foreach (testcase; cases)
             {
-                auto I = new testcaseState!(Range, RangeChar)(testcase.input, (token t) {
+                auto I = new testcaseState(testcase.input, (token t) {
                     return;
                 });
                 state!(Range, RangeChar) opCallRet;
@@ -1097,7 +1097,7 @@ version (unittest)
             foreach (testcase; cases)
             {
 
-                auto I = new testcaseState!(Range, RangeChar)(testcase.input, (token) {
+                auto I = new testcaseState(testcase.input, (token) {
                     return;
                 });
                 I.character_buffer = testcase.prefilled_char_buffer;
