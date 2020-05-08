@@ -4,7 +4,8 @@ version (unittest)
 {
     import std.stdio : writeln;
 
-    import c_lex.lexer_test_utils: tcase, testLexer, testEmissionState, testIntermediateState, testKeywordEmissionState;
+    import c_lex.lexer_test_utils : tcase, testLexer, testEmissionState,
+        testIntermediateState, testKeywordEmissionState;
 }
 
 import std.range.primitives : popFront, empty, isInputRange;
@@ -88,16 +89,12 @@ template lexer(Range, RangeChar)
 
 unittest
 {
-    tcase caseOne = {input:
-    cast(char[]) "if", emitted_token_count : 1};
-    tcase caseTwo = {input:
-    cast(char[]) "10 0xDEADBEEF", emitted_token_count : 2};
+    tcase caseOne = {input: cast(char[]) "if", emitted_token_count: 1};
+    tcase caseTwo = {input: cast(char[]) "10 0xDEADBEEF", emitted_token_count: 2};
     tcase caseThree = {
-    input:
-        cast(char[]) "001919, if, 0x19 ", emitted_token_count : 2};
+        input: cast(char[]) "001919, if, 0x19 ", emitted_token_count: 2};
         tcase caseFour = {
-        input:
-            cast(char[]) "0x19 if 0x1010 10 033", emitted_token_count : 5
+            input: cast(char[]) "0x19 if 0x1010 10 033", emitted_token_count: 5
     };
 
     tcase[2] testcases = [caseOne, caseTwo];
@@ -157,7 +154,8 @@ class stateException : Exception
 //Can we use some refelction to build a graphviz graph
 //of the states, if they report their class names.
 
-template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!RangeChar)
+template state_template(Range, RangeChar)
+        if (isInputRange!Range && isSomeChar!RangeChar)
 {
 
     class state
@@ -201,7 +199,7 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
             return this;
         }
 
-        version(unittest)
+        version (unittest)
         {
             /*  
             This conditional comp looks awful, 
@@ -210,10 +208,10 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
             */
             package
             {
-            Range f;
-            RangeChar[] character_buffer;
-            bool emitted = false;
-            void delegate(token t) emission_function;
+                Range f;
+                RangeChar[] character_buffer;
+                bool emitted = false;
+                void delegate(token t) emission_function;
             }
         }
         else
@@ -252,11 +250,13 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
                     //TODO Can we generate this switch statement from a list of keywords?
                 case 'i':
                     this.f.popFront();
-                    auto next_state = new state_template!(Range, RangeChar).isIf(f, this.emission_function);
+                    auto next_state = new state_template!(Range, RangeChar).isIf(f,
+                            this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
                 default:
-                    auto next_state = new state_template!(Range, RangeChar).isIdentifier(f, this.emission_function);
+                    auto next_state = new state_template!(Range, RangeChar).isIdentifier(f,
+                            this.emission_function);
                     next_state.buffer_char(c); //buffer it
                     return next_state;
                 }
@@ -269,11 +269,13 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
                 switch (c)
                 {
                 case '0':
-                    auto next_state = new state_template!(Range, RangeChar).isHexOrOct(f, this.emission_function);
+                    auto next_state = new state_template!(Range, RangeChar).isHexOrOct(f,
+                            this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
                 case '1': .. case '9':
-                    auto next_state = new state_template!(Range, RangeChar).isInteger(this.f, this.emission_function);
+                    auto next_state = new state_template!(Range,
+                            RangeChar).isInteger(this.f, this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
                 default:
@@ -293,13 +295,15 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
                 case ')':
                 case '}':
                 case ']':
-                    auto next_state = new state_template!(Range, RangeChar).isRparen(this.f, this.emission_function);
+                    auto next_state = new state_template!(Range, RangeChar).isRparen(this.f,
+                            this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
                 case '(':
                 case '{':
                 case '[':
-                    auto next_state = new state_template!(Range, RangeChar).isLparen(this.f, this.emission_function);
+                    auto next_state = new state_template!(Range, RangeChar).isLparen(this.f,
+                            this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
                 case '+':
@@ -310,7 +314,8 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
                 case '^':
                 case '&':
                 case '|':
-                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f, this.emission_function);
+                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
+                            this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
                 default:
@@ -322,6 +327,7 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
             throw new stateException("Unexpected character");
         }
     }
+
     class isIf : state
     {
         import std.uni : isAlpha, isWhite, isPunctuation;
@@ -351,19 +357,22 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
                 {
                     loc l;
                     this.emit(new IF(l));
-                    return new state_template!(Range, RangeChar).start(this.f, this.emission_function);
+                    return new state_template!(Range, RangeChar).start(this.f,
+                            this.emission_function);
                 }
 
                 if (isWhite(c) || isPunctuation(c))
                 {
                     loc l;
                     this.emit(new IF(l));
-                    return new state_template!(Range, RangeChar).start(this.f, this.emission_function);
+                    return new state_template!(Range, RangeChar).start(this.f,
+                            this.emission_function);
                 }
                 else
                 {
                     this.f.popFront();
-                    auto new_state = new state_template!(Range, RangeChar).isIdentifier(this.f, this.emission_function);
+                    auto new_state = new state_template!(Range, RangeChar).isIdentifier(this.f,
+                            this.emission_function);
                     new_state.character_buffer = this.character_buffer.dup();
                     return new_state;
                 }
@@ -373,7 +382,8 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
             else if (isAlpha(c))
             {
                 this.f.popFront();
-                auto new_state = new state_template!(Range, RangeChar).isIdentifier(this.f, this.emission_function);
+                auto new_state = new state_template!(Range, RangeChar).isIdentifier(this.f,
+                        this.emission_function);
                 new_state.character_buffer = this.character_buffer.dup();
                 return new_state;
             }
@@ -454,13 +464,15 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
             case 'x':
                 this.f.popFront();
                 this.buffer_char(c);
-                auto new_state = new state_template!(Range, RangeChar).isHex(this.f, this.emission_function);
+                auto new_state = new state_template!(Range, RangeChar).isHex(this.f,
+                        this.emission_function);
                 new_state.character_buffer = this.character_buffer.dup();
                 return new_state;
             case '0': .. case '7':
                 this.f.popFront();
                 this.buffer_char(c);
-                auto new_state = new state_template!(Range, RangeChar).isOct(this.f, this.emission_function);
+                auto new_state = new state_template!(Range, RangeChar).isOct(this.f,
+                        this.emission_function);
                 new_state.character_buffer = this.character_buffer.dup();
                 return new_state;
             default:
@@ -527,7 +539,9 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
 
             bool isHexLetter(RangeChar c)
             {
-                return canFind(['a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F'], c);
+                return canFind([
+                        'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F'
+                        ], c);
             }
 
         }
@@ -645,7 +659,8 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
             this.emit(new rparen(l, cast(immutable RangeChar[]) this.character_buffer));
 
             //We already have our char in the buffer, so should be all okay!
-            auto new_state = new state_template!(Range, RangeChar).start(this.f, this.emission_function);
+            auto new_state = new state_template!(Range, RangeChar).start(this.f,
+                    this.emission_function);
             return new_state;
         }
     }
@@ -674,7 +689,8 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
             this.emit(new lparen(l, cast(immutable RangeChar[]) this.character_buffer));
 
             //We already have our char in the buffer, so should be all okay!
-            auto new_state = new state_template!(Range, RangeChar).start(this.f, this.emission_function);
+            auto new_state = new state_template!(Range, RangeChar).start(this.f,
+                    this.emission_function);
             return new_state;
         }
     }
@@ -698,33 +714,35 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
         {
             loc l;
 
-            switch(this.character_buffer[0])
+            switch (this.character_buffer[0])
             {
-                case '+':
-                case '-':
-                case '%':
-                    this.emit(new operator(l, cast(immutable char[])this.character_buffer));
-                    return new state_template!(Range, RangeChar).start(this.f, this.emission_function);
-                case '=':
-                case '>':
-                case '<':
-                    this.emit(new comparason(l, cast(immutable char[])this.character_buffer));
-                    return new state_template!(Range, RangeChar).start(this.f, this.emission_function);
-                case '&':
-                case'|':
-                    if (this.character_buffer[0] == this.f.front())
-                    {
-                        auto new_state = new state_template!(Range, RangeChar).logical(this.f, this.emission_function);
-                        new_state.character_buffer = this.character_buffer;
-                        return new_state;
-                    }
-                    else
-                    {
-                        this.emit(new operator(l, cast(immutable char[])this.character_buffer));
-                        return new state_template!(Range, RangeChar).start(this.f, this.emission_function);
-                    }
-                default:
-                    throw new stateException("Unknown operator: " ~ this.character_buffer[0]); //Please remove this.
+            case '+':
+            case '-':
+            case '%':
+                this.emit(new operator(l, cast(immutable char[]) this.character_buffer));
+                return new state_template!(Range, RangeChar).start(this.f, this.emission_function);
+            case '=':
+            case '>':
+            case '<':
+                this.emit(new comparason(l, cast(immutable char[]) this.character_buffer));
+                return new state_template!(Range, RangeChar).start(this.f, this.emission_function);
+            case '&':
+            case '|':
+                if (this.character_buffer[0] == this.f.front())
+                {
+                    auto new_state = new state_template!(Range, RangeChar).logical(this.f,
+                            this.emission_function);
+                    new_state.character_buffer = this.character_buffer;
+                    return new_state;
+                }
+                else
+                {
+                    this.emit(new operator(l, cast(immutable char[]) this.character_buffer));
+                    return new state_template!(Range, RangeChar).start(this.f,
+                            this.emission_function);
+                }
+            default:
+                throw new stateException("Unknown operator: " ~ this.character_buffer[0]); //Please remove this.
             }
 
         }
@@ -733,8 +751,8 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
     class logical : state
     {
 
-        import c_lex.token: operator, token;
-        import c_lex.location: loc;
+        import c_lex.token : operator, token;
+        import c_lex.location : loc;
 
         this(Range f, void delegate(token t) emission_function)
         {
@@ -751,7 +769,7 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
             loc l;
             auto c = this.f.front();
             this.f.popFront();
-            if ( this.character_buffer[0] == c )
+            if (this.character_buffer[0] == c)
             {
                 string character_pair;
                 this.emit(new operator(l, character_pair ~ this.character_buffer[0] ~ c));
@@ -762,7 +780,6 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
     }
 
 }
-
 
 unittest
 {
@@ -790,43 +807,45 @@ unittest
         cast(char[]) "10xxx", cast(char[]) "isInteger", true, false, "", cast(char[]) ""
         };
 
-        tcase[7] cases = [caseOne, caseTwo, caseThree, caseFour, caseFive, caseSix, caseSeven];
+        tcase[7] cases = [
+            caseOne, caseTwo, caseThree, caseFour, caseFive, caseSix, caseSeven
+        ];
 
         testIntermediateState!(state_template!(char[], char).start, char[], char)(cases);
     }
 
-unittest
-{
-tcase caseOne = {
-    cast(char[]) "f ", cast(char[]) "if", false, true, "start", cast(char[]) "i"
-};
-tcase caseTwo = {
-    cast(char[]) "fxx", cast(char[]) "if", false, false, "isIdentifier", cast(char[]) "i"
+    unittest
+    {
+        tcase caseOne = {
+            cast(char[]) "f ", cast(char[]) "if", false, true, "start", cast(char[]) "i"
     };
-    tcase caseThree = {
-        cast(char[]) "f;", cast(char[]) "if", false, true, "start", cast(char[]) "i"
-};
-tcase caseFour = {
-    cast(char[]) "f", cast(char[]) "if", false, true, "start", cast(char[]) "i"
+    tcase caseTwo = {
+        cast(char[]) "fxx", cast(char[]) "if", false, false, "isIdentifier", cast(char[]) "i"
+        };
+        tcase caseThree = {
+            cast(char[]) "f;", cast(char[]) "if", false, true, "start", cast(char[]) "i"
     };
+    tcase caseFour = {
+        cast(char[]) "f", cast(char[]) "if", false, true, "start", cast(char[]) "i"
+        };
 
-    tcase[4] cases = [caseOne, caseTwo, caseThree, caseFour];
+        tcase[4] cases = [caseOne, caseTwo, caseThree, caseFour];
 
-    testKeywordEmissionState!(state_template!(char[], char).isIf, char[], char)(cases);
-}
+        testKeywordEmissionState!(state_template!(char[], char).isIf, char[], char)(cases);
+    }
 
-unittest
-{
-    import c_lex.token : classInfoNameToPlainName;
+    unittest
+    {
+        import c_lex.token : classInfoNameToPlainName;
 
-    tcase caseOne = {cast(char[]) "THING ", cast(char[]) "THING", false, true
-};
-tcase caseTwo = {cast(char[]) "THING\n", cast(char[]) "THING", false, true};
-tcase caseThree = {cast(char[]) " THING", cast(char[]) "", false, true};
+        tcase caseOne = {cast(char[]) "THING ", cast(char[]) "THING", false, true
+    };
+    tcase caseTwo = {cast(char[]) "THING\n", cast(char[]) "THING", false, true};
+    tcase caseThree = {cast(char[]) " THING", cast(char[]) "", false, true};
 
-tcase[3] cases = [caseOne, caseTwo, caseThree];
+    tcase[3] cases = [caseOne, caseTwo, caseThree];
 
-testEmissionState!(state_template!(char[], char).isIdentifier, char[], char)(cases);
+    testEmissionState!(state_template!(char[], char).isIdentifier, char[], char)(cases);
 }
 
 unittest
@@ -900,21 +919,17 @@ unittest
     writeln("Running test cases for isRparen");
 
     tcase caseOne = {
-    input:
-        cast(char[]) ")", char_buffer_expected : cast(char[]) ")", throws : false, emits : true,
-    emits_class : "rparen", emitted_token_count : 1, prefilled_char_buffer : cast(char[]) ")"};
+        input: cast(char[]) ")", char_buffer_expected: cast(char[]) ")", throws: false, emits: true,
+        emits_class: "rparen", emitted_token_count: 1, prefilled_char_buffer: cast(char[]) ")"};
         tcase caseTwo = {
-        input:
-            cast(char[]) "}", char_buffer_expected : cast(char[]) "}", throws : false, emits : true, emits_class
-                : "rparen", emitted_token_count : 1, prefilled_char_buffer : cast(char[]) "}"
+            input: cast(char[]) "}", char_buffer_expected: cast(char[]) "}", throws: false, emits: true, emits_class: "rparen",
+            emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "}"
     };
     tcase caseThree = {
-    input:
-        cast(char[]) "]", char_buffer_expected : cast(char[]) "]", throws : false, emits : true,
-    emits_class : "rparen", emitted_token_count : 1, prefilled_char_buffer : cast(char[]) "]"
+        input: cast(char[]) "]", char_buffer_expected: cast(char[]) "]", throws: false, emits: true,
+        emits_class: "rparen", emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "]"
         };
-        tcase caseFour = {input:
-        cast(char[]) "i", throws : true
+        tcase caseFour = {input: cast(char[]) "i", throws: true
     };
 
     tcase[4] cases = [caseOne, caseTwo, caseThree, caseFour];
@@ -927,21 +942,17 @@ unittest
     writeln("Running test cases for is isLparen");
 
     tcase caseOne = {
-    input:
-        cast(char[]) "(", char_buffer_expected : cast(char[]) "(", throws : false, emits : true,
-    emits_class : "lparen", emitted_token_count : 1, prefilled_char_buffer : cast(char[]) "("};
+        input: cast(char[]) "(", char_buffer_expected: cast(char[]) "(", throws: false, emits: true,
+        emits_class: "lparen", emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "("};
         tcase caseTwo = {
-        input:
-            cast(char[]) "{", char_buffer_expected : cast(char[]) "{", throws : false, emits : true, emits_class
-                : "lparen", emitted_token_count : 1, prefilled_char_buffer : cast(char[]) "{"
+            input: cast(char[]) "{", char_buffer_expected: cast(char[]) "{", throws: false, emits: true, emits_class: "lparen",
+            emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "{"
     };
     tcase caseThree = {
-    input:
-        cast(char[]) "[", char_buffer_expected : cast(char[]) "[", throws : false, emits : true,
-    emits_class : "lparen", emitted_token_count : 1, prefilled_char_buffer : cast(char[]) "["
+        input: cast(char[]) "[", char_buffer_expected: cast(char[]) "[", throws: false, emits: true,
+        emits_class: "lparen", emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "["
         };
-        tcase caseFour = {input:
-        cast(char[]) "i", throws : true
+        tcase caseFour = {input: cast(char[]) "i", throws: true
     };
 
     tcase[4] cases = [caseOne, caseTwo, caseThree, caseFour];
@@ -953,9 +964,11 @@ unittest
 {
     writeln("Running test cases for isOperator");
 
-    tcase caseOne = { input: cast(char[])" 10", throws: false, emits: true, emits_class: "operator", prefilled_char_buffer: cast(char[]) "+", char_buffer_expected: cast(char[]) "+"};
+    tcase caseOne = {
+        input: cast(char[]) " 10", throws: false, emits: true, emits_class: "operator",
+        prefilled_char_buffer: cast(char[]) "+", char_buffer_expected: cast(char[]) "+"};
 
-    tcase[1] cases = [caseOne];
+        tcase[1] cases = [caseOne];
 
-    testEmissionState!(state_template!(char[], char).isOperator, char[],char)(cases);
-}
+        testEmissionState!(state_template!(char[], char).isOperator, char[], char)(cases);
+    }

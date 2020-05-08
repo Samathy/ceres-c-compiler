@@ -1,6 +1,6 @@
-import c_lex.lexer: lexer, stateException;
-import c_lex.mmrangefile: mmrangefile;
-import std.stdio: writeln;
+import c_lex.lexer : lexer, stateException;
+import c_lex.mmrangefile : mmrangefile;
+import std.stdio : writeln;
 
 int main()
 {

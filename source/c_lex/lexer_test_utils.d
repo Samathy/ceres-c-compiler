@@ -1,8 +1,7 @@
 module c_lex.lexer_test_utils;
 
-import std.traits: BaseTypeTuple;
-import std.meta: AliasSeq;
-
+import std.traits : BaseTypeTuple;
+import std.meta : AliasSeq;
 
 import c_lex.lexer;
 
@@ -24,10 +23,10 @@ version (unittest)
         int emitted_token_count = 0;
         token_list tokens = new token_list();
     }
-    
-    template testEmissionState(testcaseState, Range, RangeChar) 
-        if ( is(BaseTypeTuple!(testcaseState) == AliasSeq!(state_template!(Range, RangeChar).state)) || 
-             is(s == state_template!(c).state))
+
+    template testEmissionState(testcaseState, Range, RangeChar)
+            if (is(BaseTypeTuple!(testcaseState) == AliasSeq!(state_template!(Range,
+                RangeChar).state)) || is(s == state_template!(c).state))
     {
         /* Runs a set of testcases aginst a given emitting state ( as opposed to an intermediary state ).
          * Emitting states are 'final' states.
@@ -39,9 +38,7 @@ version (unittest)
 
             foreach (testcase; cases)
             {
-                auto I = new testcaseState(testcase.input, (token) {
-                    return;
-                });
+                auto I = new testcaseState(testcase.input, (token) { return; });
 
                 I.character_buffer = testcase.prefilled_char_buffer;
 
@@ -68,8 +65,8 @@ version (unittest)
     }
 
     template testIntermediateState(testcaseState, Range, RangeChar)
-        if ( is(BaseTypeTuple!(testcaseState) == AliasSeq!(state_template!(Range, RangeChar).state)) || 
-             is(s == state_template!(c).state))
+            if (is(BaseTypeTuple!(testcaseState) == AliasSeq!(state_template!(Range,
+                RangeChar).state)) || is(s == state_template!(c).state))
     {
         /* Runs a set of testcases against a given non-emitting state
          * Non-emitting states return a new state object that we care
@@ -81,9 +78,7 @@ version (unittest)
 
             foreach (testcase; cases)
             {
-                auto I = new testcaseState(testcase.input, (token t) {
-                    return;
-                });
+                auto I = new testcaseState(testcase.input, (token t) { return; });
                 state_template!(Range, RangeChar).state opCallRet;
 
                 try
@@ -106,8 +101,8 @@ version (unittest)
     }
 
     template testKeywordEmissionState(testcaseState, Range, RangeChar)
-        if ( is(BaseTypeTuple!(testcaseState) == AliasSeq!(state_template!(Range, RangeChar).state)) || 
-             is(s == state_template!(c).state))
+            if (is(BaseTypeTuple!(testcaseState) == AliasSeq!(state_template!(Range,
+                RangeChar).state)) || is(s == state_template!(c).state))
     {
         /* Runs a set of test cases against a given state which 
          * analyzes a keyword. These such states often require their character
@@ -121,9 +116,7 @@ version (unittest)
             foreach (testcase; cases)
             {
 
-                auto I = new testcaseState(testcase.input, (token) {
-                    return;
-                });
+                auto I = new testcaseState(testcase.input, (token) { return; });
                 I.character_buffer = testcase.prefilled_char_buffer;
 
                 state_template!(Range, RangeChar).state opCallRet;

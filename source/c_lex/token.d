@@ -333,7 +333,7 @@ class operator : token
     }
 }
 
-class comparason: token
+class comparason : token
 {
     this(loc location, string token_string)
     {
@@ -354,12 +354,12 @@ class comparason: token
 
 unittest
 {
-    auto t = new comparason(loc(10,10,"foo.c"), "=");
+    auto t = new comparason(loc(10, 10, "foo.c"), "=");
 
-    import std.stdio: writeln;
+    import std.stdio : writeln;
+
     assert(t.toString() == "COMPARASON(=)");
 }
-
 
 class punctuator : token
 {
