@@ -78,7 +78,7 @@ template lexer(Range, RangeChar)
           * Enter the start state, 
           * then call the next state until the stream is empty
           */
-        void scan()
+        void scan(bool early_error=false)
         {
             this.current_state = new state_template!(Range, char).start(this.f, delegate(token t) {
                 list.add(t);
@@ -86,8 +86,27 @@ template lexer(Range, RangeChar)
 
             while (!this.f.empty())
             {
+                try
+                {
                 current_state = current_state();
                 this.f = current_state.f;
+                }
+                catch ( stateException e )
+                {
+                    writeln("WARN: "~e.msg);
+                    if (early_error)
+                    {
+                        throw e;
+                    }
+                    else
+                    {   
+                        this.f.popFront();
+                        this.current_state = new state_template!(Range, char).start(this.f, delegate(token t) {
+                            list.add(t);
+                        });
+                        continue;
+                    }
+                }
             }
 
         }
