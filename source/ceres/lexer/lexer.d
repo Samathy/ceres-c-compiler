@@ -212,16 +212,16 @@ template state_template(Range, RangeChar)
 {
 
     /**
-* The super-state class
-*/
+     * The super-state class
+     */
     class state
     {
         import ceres.lexer.token;
 
         /** 
-  * Constructor takes the character input range we're operating on, 
-  * and a function to call when a token is to be emitted
-  */
+         * Constructor takes the character input range we're operating on, 
+         * and a function to call when a token is to be emitted
+         */
         this(Range f, void delegate(token t) emission_function)
         {
             this.f = f;
@@ -242,8 +242,8 @@ template state_template(Range, RangeChar)
         }
 
         /**
-  * Overridable. Emit a token.
-  */
+         * Overridable. Emit a token.
+         */
         void emit(token t)
         {
             this.emitted = true;
@@ -251,17 +251,17 @@ template state_template(Range, RangeChar)
         }
 
         /**
-  * Add a character from the stream to internal buffer 
-  * for look-behind in the next state.
-  */
+         * Add a character from the stream to internal buffer 
+         * for look-behind in the next state.
+         */
         final buffer_char(RangeChar c)
         {
             this.character_buffer ~= c;
         }
 
         /**
-  * Consume a character from the string, but ignore it.
-  */
+         * Consume a character from the string, but ignore it.
+         */
         final state ignore()
         {
             this.f.popFront();
@@ -299,8 +299,8 @@ template state_template(Range, RangeChar)
     }
 
     /** 
-* Initial starting state
-*/
+    * Initial starting state
+    */
     class start : state
     {
         import std.conv : to;
@@ -313,10 +313,9 @@ template state_template(Range, RangeChar)
         }
 
         /**
-  * When this state is called, check verious conditions to 
-  * choose the next state to jump too
-  */
-
+      * When this state is called, check verious conditions to 
+      * choose the next state to jump too
+      */
         override state opCall()
         {
 
@@ -409,10 +408,10 @@ template state_template(Range, RangeChar)
     }
 
     /** 
-* Process potantial if statement
-* This state is reached after an 'i' is seen
-*
-*/
+    * Process potantial if statement
+    * This state is reached after an 'i' is seen
+    *
+    */
     class isIf : state
     {
         import std.uni : isAlpha, isWhite, isPunctuation;
@@ -481,9 +480,9 @@ template state_template(Range, RangeChar)
     }
 
     /**
-* Potential identifier ( variable name etc )
-*
-*/
+    * Potential identifier ( variable name etc )
+    *
+    */
     class isIdentifier : state
     {
         import std.uni : isAlpha, isWhite, isPunctuation;
@@ -535,8 +534,8 @@ template state_template(Range, RangeChar)
     }
 
     /** 
-* Potential hex or oct literal
-*/
+    * Potential hex or oct literal
+    */
     class isHexOrOct : state
     {
         import ceres.lexer.token;
@@ -573,8 +572,8 @@ template state_template(Range, RangeChar)
     }
 
     /**
-* Certainly a hex literal
-*/
+    * Certainly a hex literal
+    */
     class isHex : state
     {
         import std.uni : isNumber, isWhite, isPunctuation;
@@ -646,8 +645,8 @@ template state_template(Range, RangeChar)
     }
 
     /** 
-* Certainly an oct literal
-*/
+    * Certainly an oct literal
+    */
     class isOct : state
     {
         import std.uni : isNumber, isWhite, isPunctuation;
@@ -693,10 +692,10 @@ template state_template(Range, RangeChar)
         }
     }
 
-    /* 
-* Certainly an integer literal
-*
-*/
+    /**
+    * Certainly an integer literal
+    *
+    */
     class isInteger : state
     {
         import std.uni : isNumber, isWhite, isPunctuation;
@@ -744,8 +743,8 @@ template state_template(Range, RangeChar)
     }
 
     /** 
-* Right parenthesis
-*/
+     * Right parenthesis
+     */
     class isRparen : state
     {
         import std.algorithm : canFind;
@@ -790,8 +789,8 @@ template state_template(Range, RangeChar)
     }
 
     /** 
-* Left Parenthesis
-*/
+     * Left Parenthesis
+     */
     class isLparen : state
     {
         import std.algorithm : canFind;
@@ -836,8 +835,8 @@ template state_template(Range, RangeChar)
     }
 
     /**
-* A mathematical or bitwise operator
-*/
+     * A mathematical or bitwise operator
+     */
     class isOperator : state
     {
         import ceres.lexer.token : mod, lessThan, or, token;

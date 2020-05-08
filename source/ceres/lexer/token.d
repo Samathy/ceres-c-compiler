@@ -821,7 +821,7 @@ class equal : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["=="]);
     }
 }
 
@@ -829,7 +829,7 @@ class not : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["!"]);
     }
 }
 
@@ -837,7 +837,7 @@ class add : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["+"]);
     }
 }
 
@@ -845,7 +845,7 @@ class sub : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["-"]);
     }
 }
 
@@ -853,7 +853,7 @@ class div : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["/"]);
     }
 }
 
@@ -861,7 +861,7 @@ class mod : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["%"]);
     }
 }
 
@@ -869,7 +869,7 @@ class mul : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["*"]);
     }
 }
 
@@ -877,7 +877,7 @@ class lshift : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["<<"]);
     }
 }
 
@@ -885,7 +885,7 @@ class rshift : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, [">>"]);
     }
 }
 
@@ -893,7 +893,7 @@ class assign : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["="]);
     }
 }
 
@@ -901,7 +901,7 @@ class andAssign : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["+="]);
     }
 }
 
@@ -909,7 +909,7 @@ class orAssign : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["&="]);
     }
 }
 
@@ -917,7 +917,7 @@ class xorAssign : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["^="]);
     }
 }
 
@@ -925,7 +925,7 @@ class addAssign : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["+="]);
     }
 }
 
@@ -933,7 +933,7 @@ class minAssign : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["-="]);
     }
 }
 
@@ -941,7 +941,7 @@ class divAssign : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["/="]);
     }
 }
 
@@ -949,7 +949,7 @@ class mulAssign : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["*="]);
     }
 }
 
@@ -957,7 +957,7 @@ class modAssign : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["%="]);
     }
 }
 
@@ -965,7 +965,7 @@ class lshiftAssign : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["<<="]);
     }
 }
 
@@ -973,7 +973,7 @@ class rshiftAssign : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, [">>="]);
     }
 }
 
@@ -981,7 +981,7 @@ class and : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["&"]);
     }
 }
 
@@ -989,7 +989,7 @@ class or : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["|"]);
     }
 }
 
@@ -997,7 +997,7 @@ class xor : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["^"]);
     }
 }
 
@@ -1005,7 +1005,7 @@ class andand : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["&&"]);
     }
 }
 
@@ -1013,7 +1013,7 @@ class oror : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["||"]);
     }
 }
 
@@ -1021,7 +1021,7 @@ class minusminus : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["--"]);
     }
 }
 
@@ -1029,7 +1029,7 @@ class plusplus : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["++"]);
     }
 }
 
@@ -1037,7 +1037,7 @@ class moreThan : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, [">"]);
     }
 }
 
@@ -1045,7 +1045,7 @@ class lessThan : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["<"]);
     }
 }
 
@@ -1053,7 +1053,7 @@ class lessThanEqualTo : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["<="]);
     }
 }
 
@@ -1061,15 +1061,15 @@ class moreThanEqualTo : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, [">="]);
     }
 }
 
-class notThanEqualTo : operator
+class notEqualTo : operator
 {
     this(loc location, string token_string)
     {
-        super(location, token_string, this.allowed_operators);
+        super(location, token_string, ["!="]);
     }
 }
 
