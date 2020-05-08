@@ -7,11 +7,11 @@
 * This file is part of the Ceres C compiler
 *
 */
-module c_lex.token;
+module ceres.lexer.token;
 
 import std.string : toUpper, lastIndexOf;
 
-import c_lex.location : loc;
+import ceres.lexer.location : loc;
 
 /**
   * We need to rename some of these tokens so they are actually the tokens of the C language
@@ -92,6 +92,156 @@ class keyword : token
     }
 }
 
+class AUTO : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class BREAK : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class CASE : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class CHAR : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class CONST : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class CONTINUE : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class DEFAULT : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class DO : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class DOUBLE : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class ELSE : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class ENUM : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class EXTERN : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class FLOAT : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class FOR : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class GOTO : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
 class IF : keyword
 {
 
@@ -102,7 +252,217 @@ class IF : keyword
 
 }
 
-class id : token
+class INLINE : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class INT : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class LONG : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class REGISTER : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class RESTRICT : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class RETURN : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class SHORT : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class SIGNED : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class SIZEOF : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class STATIC : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class STRUCT : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class SWITCH : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class TYPEDEF : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class UNION : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class UNSIGNED : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class VOID : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class VOLATILE : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class WHILE : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class _BOOL : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class _COMPLEX : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class _IMAGINARY : keyword
+{
+
+    this(loc location)
+    {
+        super(location);
+    }
+
+}
+
+class ID : token
 {
     this(loc location, string token_string)
     {
@@ -123,7 +483,7 @@ class id : token
 
 unittest
 {
-    auto t = new id(loc(10, 10, "foo.c"), "foo");
+    auto t = new ID(loc(10, 10, "foo.c"), "foo");
 
     assert(t.toString() == "ID(foo)");
 }
@@ -188,7 +548,7 @@ class rparen : paren
 
     private
     {
-        immutable string[] allowed_parenthesis = [")", "]", "}"];
+        immutable string[] allowed_parenthesis = [")"];
     }
 }
 
@@ -223,7 +583,7 @@ class lparen : paren
 
     private
     {
-        immutable string[] allowed_parenthesis = ["(", "[", "{",];
+        immutable string[] allowed_parenthesis = ["("];
     }
 }
 
@@ -246,7 +606,79 @@ unittest
     }
 }
 
-class integer : token
+class lcurly : paren
+{
+
+    this(loc location, string token_string)
+    {
+        import std.algorithm : canFind;
+
+        super(location, token_string, this.allowed_parenthesis);
+    }
+
+    private
+    {
+        immutable string[] allowed_parenthesis = ["{",];
+    }
+}
+
+class rcurly : paren
+{
+
+    this(loc location, string token_string)
+    {
+        import std.algorithm : canFind;
+
+        super(location, token_string, this.allowed_parenthesis);
+    }
+
+    private
+    {
+        immutable string[] allowed_parenthesis = ["}",];
+    }
+}
+
+class lsquare : paren
+{
+
+    this(loc location, string token_string)
+    {
+        import std.algorithm : canFind;
+
+        super(location, token_string, this.allowed_parenthesis);
+    }
+
+    private
+    {
+        immutable string[] allowed_parenthesis = ["["];
+    }
+}
+
+class rsquare : paren
+{
+
+    this(loc location, string token_string)
+    {
+        import std.algorithm : canFind;
+
+        super(location, token_string, this.allowed_parenthesis);
+    }
+
+    private
+    {
+        immutable string[] allowed_parenthesis = ["]"];
+    }
+}
+
+//TODO numerical constants can have suffixes, which we're not dealing with atm.
+
+enum integerSign
+{
+    POSITIVE,
+    NEGATIVE
+}
+
+class integerLiteral : token
 {
     this(loc location, string token_string)
     {
@@ -267,12 +699,42 @@ class integer : token
 
 unittest
 {
-    auto t = new integer(loc(10, 10, "foo.c"), "10");
+    auto t = new integerLiteral(loc(10, 10, "foo.c"), "10");
 
-    assert(t.toString() == "INTEGER(10)");
+    assert(t.toString() == "INTEGERLITERAL(10)");
 }
 
-class hexInteger : integer
+class signedIntegerLiteral : integerLiteral
+{
+    this(loc location, integerSign sign, string token_string)
+    {
+        this.sign = sign;
+        super(location, token_string);
+    }
+
+    public
+    {
+        integerSign sign;
+    }
+
+}
+
+class hexLiteral : integerLiteral
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string);
+    }
+}
+
+unittest
+{
+    auto t = new hexLiteral(loc(10, 10, "foo.c"), "10");
+
+    assert(t.toString() == "HEXLITERAL(10)");
+}
+
+class octLiteral : integerLiteral
 {
     this(loc location, string token_string)
     {
@@ -283,28 +745,20 @@ class hexInteger : integer
 
 unittest
 {
-    auto t = new hexInteger(loc(10, 10, "foo.c"), "10");
+    auto t = new octLiteral(loc(10, 10, "foo.c"), "10");
 
-    assert(t.toString() == "HEXINTEGER(10)");
+    assert(t.toString() == "OCTLITERAL(10)");
 }
 
-class octInteger : integer
+class decLiteral : integerLiteral
 {
     this(loc location, string token_string)
     {
         super(location, token_string);
     }
-
 }
 
-unittest
-{
-    auto t = new octInteger(loc(10, 10, "foo.c"), "10");
-
-    assert(t.toString() == "OCTINTEGER(10)");
-}
-
-class boolean : token
+class floatLiteral : token
 {
     this(loc location, string token_string)
     {
@@ -321,13 +775,6 @@ class boolean : token
     {
         string token_string;
     }
-}
-
-unittest
-{
-    auto t = new boolean(loc(10, 10, "foo.c"), "true");
-
-    assert(t.toString() == "BOOLEAN(true)");
 }
 
 class operator : token
@@ -370,12 +817,268 @@ class operator : token
     }
 }
 
-class comparason : token
+class equal : operator
 {
     this(loc location, string token_string)
     {
-        this.token_string = token_string;
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class not : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class add : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class sub : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class div : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class mod : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class mul : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class lshift : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class rshift : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class assign : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class andAssign : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class orAssign : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class xorAssign : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class addAssign : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class minAssign : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class divAssign : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class mulAssign : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class modAssign : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class lshiftAssign : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class rshiftAssign : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class and : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class or : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class xor : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class andand : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class oror : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class minusminus : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class plusplus : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class moreThan : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class lessThan : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class lessThanEqualTo : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class moreThanEqualTo : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class notThanEqualTo : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, this.allowed_operators);
+    }
+}
+
+class stringLiteral : token
+{
+    this(loc location, string token_string)
+    {
         super(location);
+        this.token_string = token_string;
     }
 
     override string toString()
@@ -387,40 +1090,4 @@ class comparason : token
     {
         string token_string;
     }
-}
-
-unittest
-{
-    auto t = new comparason(loc(10, 10, "foo.c"), "=");
-
-    import std.stdio : writeln;
-
-    assert(t.toString() == "COMPARASON(=)");
-}
-
-class punctuator : token
-{
-    this(loc location, string token_string)
-    {
-        super(location);
-
-        this.token_string = token_string;
-    }
-
-    override string toString()
-    {
-        return this.type_string ~ "(" ~ this.token_string ~ ")";
-    }
-
-    private
-    {
-        string token_string;
-    }
-}
-
-unittest
-{
-    auto t = new punctuator(loc(10, 10, "foo.c"), ";");
-
-    assert(t.toString() == "PUNCTUATOR(;)");
 }
