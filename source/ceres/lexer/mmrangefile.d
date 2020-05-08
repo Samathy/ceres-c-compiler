@@ -7,7 +7,7 @@
 * This file is part of the Ceres C compiler
 *
 */
-module c_lex.mmrangefile;
+module ceres.lexer.mmrangefile;
 
 import std.range;
 

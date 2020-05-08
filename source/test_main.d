@@ -1,5 +1,5 @@
-import c_lex.lexer : lexer, stateException;
-import c_lex.mmrangefile : mmrangefile;
+import ceres.lexer.lexer : lexer, stateException;
+import ceres.lexer.mmrangefile : mmrangefile;
 import std.stdio : writeln;
 
 int main()

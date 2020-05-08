@@ -7,12 +7,12 @@
 * This file is part of the Ceres C compiler
 *
 */
-module c_lex.lexer_test_utils;
+module ceres.lexer.lexer_test_utils;
 
 import std.traits : BaseTypeTuple;
 import std.meta : AliasSeq;
 
-import c_lex.lexer;
+import ceres.lexer.lexer;
 
 version (unittest)
 {
@@ -83,7 +83,7 @@ version (unittest)
          */
         bool testIntermediateState(tcase[] cases)
         {
-            import c_lex.token : classInfoNameToPlainName, token;
+            import ceres.lexer.token : classInfoNameToPlainName, token;
 
             foreach (testcase; cases)
             {
@@ -120,7 +120,7 @@ version (unittest)
         bool testKeywordEmissionState(tcase[] cases)
         {
             import std.algorithm : equal;
-            import c_lex.token : classInfoNameToPlainName;
+            import ceres.lexer.token : classInfoNameToPlainName;
 
             foreach (testcase; cases)
             {
@@ -158,7 +158,7 @@ version (unittest)
         {
             import std.algorithm : equal;
 
-            import c_lex.token : classInfoNameToPlainName, token;
+            import ceres.lexer.token : classInfoNameToPlainName, token;
 
             foreach (testcase; cases)
             {

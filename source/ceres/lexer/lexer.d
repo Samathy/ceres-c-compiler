@@ -7,13 +7,13 @@
 * This file is part of the Ceres C compiler
 *
 */
-module c_lex.lexer;
+module ceres.lexer.lexer;
 
 version (unittest)
 {
     import std.stdio : writeln;
 
-    import c_lex.lexer_test_utils : tcase, testLexer, testEmissionState,
+    import ceres.lexer.lexer_test_utils : tcase, testLexer, testEmissionState,
         testIntermediateState, testKeywordEmissionState;
 }
 
@@ -63,10 +63,10 @@ template lexer(Range, RangeChar)
         import std.conv : to;
         import std.uni : isAlpha;
 
-        import c_lex.mmrangefile;
-        import c_lex.token;
-        import c_lex.location : loc;
-        import c_lex.mmrangefile;
+        import ceres.lexer.mmrangefile;
+        import ceres.lexer.token;
+        import ceres.lexer.location : loc;
+        import ceres.lexer.mmrangefile;
 
         this(Range f)
         {
@@ -93,6 +93,7 @@ template lexer(Range, RangeChar)
                 }
                 catch (stateException e)
                 {
+                    import std.stdio: writeln;
                     writeln("WARN: " ~ e.msg);
                     if (early_error)
                     {
@@ -154,7 +155,7 @@ unittest
         {
             //TODO operator overloading to make this behave like an array too.
 
-            import c_lex.token;
+            import ceres.lexer.token;
 
             void add(token t)
             {
@@ -215,7 +216,7 @@ unittest
       */
             class state
             {
-                import c_lex.token;
+                import ceres.lexer.token;
 
                 /** 
           * Constructor takes the character input range we're operating on, 
@@ -304,7 +305,7 @@ unittest
             {
                 import std.conv : to;
                 import std.uni : isAlpha, isNumber, isWhite, isPunctuation;
-                import c_lex.token;
+                import ceres.lexer.token;
 
                 this(Range f, void delegate(token t) emission_function)
                 {
@@ -416,8 +417,8 @@ unittest
             {
                 import std.uni : isAlpha, isWhite, isPunctuation;
                 import std.range.primitives : back;
-                import c_lex.token;
-                import c_lex.location;
+                import ceres.lexer.token;
+                import ceres.lexer.location;
 
                 this(Range f, void delegate(token t) emission_function)
                 {
@@ -486,8 +487,8 @@ unittest
             class isIdentifier : state
             {
                 import std.uni : isAlpha, isWhite, isPunctuation;
-                import c_lex.token;
-                import c_lex.location;
+                import ceres.lexer.token;
+                import ceres.lexer.location;
 
                 this(Range f, void delegate(token t) emission_function)
                 {
@@ -538,7 +539,7 @@ unittest
       */
             class isHexOrOct : state
             {
-                import c_lex.token;
+                import ceres.lexer.token;
 
                 this(Range f, void delegate(token t) emission_function)
                 {
@@ -579,8 +580,8 @@ unittest
                 import std.uni : isNumber, isWhite, isPunctuation;
                 import std.range.primitives : back;
                 import std.stdio;
-                import c_lex.token : hexLiteral, token;
-                import c_lex.location;
+                import ceres.lexer.token : hexLiteral, token;
+                import ceres.lexer.location;
 
                 this(Range f, void delegate(token t) emission_function)
                 {
@@ -651,8 +652,8 @@ unittest
             {
                 import std.uni : isNumber, isWhite, isPunctuation;
                 import std.algorithm : canFind;
-                import c_lex.token : octLiteral, token;
-                import c_lex.location;
+                import ceres.lexer.token : octLiteral, token;
+                import ceres.lexer.location;
 
                 this(Range f, void delegate(token t) emission_function)
                 {
@@ -700,8 +701,8 @@ unittest
             {
                 import std.uni : isNumber, isWhite, isPunctuation;
                 import std.stdio;
-                import c_lex.token : integerLiteral, token;
-                import c_lex.location;
+                import ceres.lexer.token : integerLiteral, token;
+                import ceres.lexer.location;
 
                 this(Range f, void delegate(token t) emission_function)
                 {
@@ -748,8 +749,8 @@ unittest
             class isRparen : state
             {
                 import std.algorithm : canFind;
-                import c_lex.token : rparen, rcurly, rsquare, token;
-                import c_lex.location : loc;
+                import ceres.lexer.token : rparen, rcurly, rsquare, token;
+                import ceres.lexer.location : loc;
 
                 this(Range f, void delegate(token t) emission_function)
                 {
@@ -794,8 +795,8 @@ unittest
             class isLparen : state
             {
                 import std.algorithm : canFind;
-                import c_lex.token : lparen, lcurly, lsquare, token;
-                import c_lex.location : loc;
+                import ceres.lexer.token : lparen, lcurly, lsquare, token;
+                import ceres.lexer.location : loc;
 
                 this(Range f, void delegate(token t) emission_function)
                 {
@@ -839,8 +840,8 @@ unittest
       */
             class isOperator : state
             {
-                import c_lex.token : mod, lessThan, or,  token;
-                import c_lex.location : loc;
+                import ceres.lexer.token : mod, lessThan, or, token;
+                import ceres.lexer.location : loc;
 
                 this(Range f, void delegate(token t) emission_function)
                 {
@@ -903,8 +904,8 @@ unittest
             class logical : state
             {
 
-                import c_lex.token : oror, token;
-                import c_lex.location : loc;
+                import ceres.lexer.token : oror, token;
+                import ceres.lexer.location : loc;
 
                 this(Range f, void delegate(token t) emission_function)
                 {
@@ -989,7 +990,7 @@ unittest
 
     unittest
     {
-        import c_lex.token : classInfoNameToPlainName;
+        import ceres.lexer.token : classInfoNameToPlainName;
 
         tcase caseOne = {cast(char[]) "THING ", cast(char[]) "THING", false, true
             };
@@ -1005,7 +1006,7 @@ unittest
 unittest
 {
     writeln("Running test cases for isHexOrOct");
-    import c_lex.token : classInfoNameToPlainName; //ClassInfo.name is the same form as TypeInfo.name
+    import ceres.lexer.token : classInfoNameToPlainName; //ClassInfo.name is the same form as TypeInfo.name
 
     tcase caseOne = {cast(char[]) "x12", cast(char[]) "isHex", false, true};
     tcase caseTwo = {cast(char[]) "034", cast(char[]) "isOct", false, true};

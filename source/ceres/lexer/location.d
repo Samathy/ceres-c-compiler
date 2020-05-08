@@ -7,7 +7,7 @@
 * This file is part of the Ceres C compiler
 *
 */
-module c_lex.location;
+module ceres.lexer.location;
 
 /** 
   * File location structure. 
