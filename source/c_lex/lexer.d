@@ -1,3 +1,12 @@
+/**
+* Copyright: 2020 Samathy Barratt
+*
+* Authors: Samathy Barratt
+* License: BSD 3-Clause
+*
+* This file is part of the Ceres C compiler
+*
+*/
 module c_lex.lexer;
 
 version (unittest)
@@ -33,8 +42,22 @@ unittest
 
 }
 
+/**
+  *
+  */
 template lexer(Range, RangeChar)
 {
+    /**
+     * Main lexer class.
+     * Starting point for a scan, this class instantiates the start state and
+     * while the input stream is not empty, continues stepping to the next state.
+     *
+     * This lexer is essentially a finite automata model. Using separate classes as each FA state.
+     * Each state has logic to decide what token to emit, or which state to go to next.
+     * 
+     * We can instantiate this lexer using any input range, and character type.
+     * Normally this is an mmrangefile ( a memory mapped file )
+     */
     class lexer
     {
         import std.conv : to;
@@ -51,6 +74,10 @@ template lexer(Range, RangeChar)
             this.list = new token_list();
         }
 
+        /** 
+          * Enter the start state, 
+          * then call the next state until the stream is empty
+          */
         void scan()
         {
             this.current_state = new state_template!(Range, char).start(this.f, delegate(token t) {
@@ -72,13 +99,13 @@ template lexer(Range, RangeChar)
 
         private
         {
-            Range f;
+            Range f; // Input range
 
-            token_list list;
+            token_list list; // List of emitted tokens
 
-            state_template!(Range, RangeChar).state startState;
+            state_template!(Range, RangeChar).state startState; //Start state
 
-            state_template!(Range, RangeChar).state current_state;
+            state_template!(Range, RangeChar).state current_state; //Current state
 
             int line_no;
             int column_no;
@@ -102,6 +129,10 @@ unittest
     testLexer!(char[], char)(testcases);
 }
 
+/** 
+  * Token list contains a list of tokens the lexer has seen.
+  * It is essentially an array with a range interface.
+  */
 class token_list
 {
     //TODO operator overloading to make this behave like an array too.
@@ -154,14 +185,25 @@ class stateException : Exception
 //Can we use some refelction to build a graphviz graph
 //of the states, if they report their class names.
 
+/**
+  * Template for all FA states. 
+  * Can be instantiated using any input range which uses some kind of character
+  */
 template state_template(Range, RangeChar)
         if (isInputRange!Range && isSomeChar!RangeChar)
 {
 
+    /**
+      * The super-state class
+      */
     class state
     {
         import c_lex.token;
 
+        /** 
+          * Constructor takes the character input range we're operating on, 
+          * and a function to call when a token is to be emitted
+          */
         this(Range f, void delegate(token t) emission_function)
         {
             this.f = f;
@@ -181,18 +223,27 @@ template state_template(Range, RangeChar)
             return new state(this.f, this.emission_function);
         }
 
-        /// Overridable. Emit a token.
+        /**
+          * Overridable. Emit a token.
+          */
         void emit(token t)
         {
             this.emitted = true;
             this.emission_function(t);
         }
 
+        /**
+          * Add a character from the stream to internal buffer 
+          * for look-behind in the next state.
+          */
         final buffer_char(RangeChar c)
         {
             this.character_buffer ~= c;
         }
 
+        /**
+          * Consume a character from the string, but ignore it.
+          */
         final state ignore()
         {
             this.f.popFront();
@@ -205,6 +256,9 @@ template state_template(Range, RangeChar)
             This conditional comp looks awful, 
             we should figure out
             some way to not be doing this.
+
+            We need access to the character_buffer in 
+            the unttests.
             */
             package
             {
@@ -226,6 +280,9 @@ template state_template(Range, RangeChar)
         }
     }
 
+    /** 
+      * Initial starting state
+      */
     class start : state
     {
         import std.conv : to;
@@ -237,10 +294,15 @@ template state_template(Range, RangeChar)
             super(f, emission_function);
         }
 
+        /**
+          * When this state is called, check verious conditions to 
+          * choose the next state to jump too
+          */
+
         override state opCall()
         {
 
-            RangeChar c = this.f.front();
+            RangeChar c = this.f.front(); //View character
 
             //If its a normal character
             if (isAlpha(c))
@@ -249,7 +311,7 @@ template state_template(Range, RangeChar)
                 {
                     //TODO Can we generate this switch statement from a list of keywords?
                 case 'i':
-                    this.f.popFront();
+                    this.f.popFront(); //Consume character
                     auto next_state = new state_template!(Range, RangeChar).isIf(f,
                             this.emission_function);
                     next_state.buffer_char(c);
@@ -328,6 +390,11 @@ template state_template(Range, RangeChar)
         }
     }
 
+    /** 
+      * Process potantial if statement
+      * This state is reached after an 'i' is seen
+      *
+      */
     class isIf : state
     {
         import std.uni : isAlpha, isWhite, isPunctuation;
@@ -342,12 +409,12 @@ template state_template(Range, RangeChar)
 
         override state opCall()
         {
-            RangeChar c = this.f.front();
+            RangeChar c = this.f.front(); //View character
 
             if (this.character_buffer.back() == 'i' && c == 'f')
             {
                 this.character_buffer ~= c;
-                this.f.popFront();
+                this.f.popFront(); //Consume character
 
                 if (!this.f.empty())
                 {
@@ -395,6 +462,10 @@ template state_template(Range, RangeChar)
         }
     }
 
+    /**
+      * Potential identifier ( variable name etc )
+      *
+      */
     class isIdentifier : state
     {
         import std.uni : isAlpha, isWhite, isPunctuation;
@@ -406,11 +477,11 @@ template state_template(Range, RangeChar)
             super(f, emission_function);
         }
 
-        // An 'I' and an F has been detected
         override state opCall()
         {
             auto c = this.f.front();
-
+            /* Consume characters until we see one which 
+               cant be part of an identifier */
             while (!f.empty())
             {
                 c = this.f.front();
@@ -446,6 +517,9 @@ template state_template(Range, RangeChar)
 
     }
 
+    /** 
+      * Potential hex or oct literal
+      */
     class isHexOrOct : state
     {
         import c_lex.token;
@@ -481,6 +555,9 @@ template state_template(Range, RangeChar)
         }
     }
 
+    /**
+      * Certainly a hex literal
+      */
     class isHex : state
     {
         import std.uni : isNumber, isWhite, isPunctuation;
@@ -548,6 +625,9 @@ template state_template(Range, RangeChar)
 
     }
 
+    /** 
+      * Certainly an oct literal
+      */
     class isOct : state
     {
         import std.uni : isNumber, isWhite, isPunctuation;
@@ -592,6 +672,10 @@ template state_template(Range, RangeChar)
         }
     }
 
+    /* 
+     * Certainly an integer literal
+     *
+     */
     class isInteger : state
     {
         import std.uni : isNumber, isWhite, isPunctuation;
@@ -635,6 +719,9 @@ template state_template(Range, RangeChar)
         }
     }
 
+    /** 
+      * Right parenthesis
+      */
     class isRparen : state
     {
         import std.algorithm : canFind;
@@ -665,6 +752,9 @@ template state_template(Range, RangeChar)
         }
     }
 
+    /** 
+      * Left Parenthesis
+      */
     class isLparen : state
     {
         import std.algorithm : canFind;
@@ -695,6 +785,9 @@ template state_template(Range, RangeChar)
         }
     }
 
+    /**
+      * A mathematical or bitwise operator
+      */
     class isOperator : state
     {
         import c_lex.token : operator, comparason, token;
@@ -748,6 +841,9 @@ template state_template(Range, RangeChar)
         }
     }
 
+    /** 
+      * A logical operator
+      */
     class logical : state
     {
 

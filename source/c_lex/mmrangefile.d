@@ -1,8 +1,20 @@
+/**
+* Copyright: 2020 Samathy Barratt
+*
+* Authors: Samathy Barratt
+* License: BSD 3-Clause
+*
+* This file is part of the Ceres C compiler
+*
+*/
 module c_lex.mmrangefile;
 
 import std.range;
 
-/// Memory Mapped file as a range.
+/** 
+  * An input range backed by a memory-mapped file
+  * This is the primary input to the lexer.
+  */
 class mmrangefile
 {
     import std.mmfile;

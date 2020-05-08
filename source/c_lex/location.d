@@ -1,5 +1,19 @@
+/**
+* Copyright: 2020 Samathy Barratt
+*
+* Authors: Samathy Barratt
+* License: BSD 3-Clause
+*
+* This file is part of the Ceres C compiler
+*
+*/
 module c_lex.location;
 
+/** 
+  * File location structure. 
+  * Stores information about where
+  * we are in the file
+  */
 struct loc
 {
     int line_no;

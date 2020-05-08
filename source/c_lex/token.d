@@ -1,10 +1,26 @@
+/**
+* Copyright: 2020 Samathy Barratt
+*
+* Authors: Samathy Barratt
+* License: BSD 3-Clause
+*
+* This file is part of the Ceres C compiler
+*
+*/
 module c_lex.token;
 
 import std.string : toUpper, lastIndexOf;
 
 import c_lex.location : loc;
 
-/// Takes a class name as stored and returns a plain class name.
+/**
+  * We need to rename some of these tokens so they are actually the tokens of the C language
+  */
+
+/** 
+  * Function to convert class names into plain names
+  * for printing and comparason in tests.
+  */
 string classInfoNameToPlainName(string classinfoName)
 {
     string noPrefix = classinfoName[lastIndexOf(classinfoName, ".") + 1 .. classinfoName.length];
@@ -28,14 +44,24 @@ unittest
     assert(classInfoNameToPlainName("C_LEX.TOKEN.TOKEN") == "TOKEN");
 }
 
+/** 
+  * Token superclass
+  */
 class token
 {
+    /** 
+      * Constructor takes a location struct to track where the token came from
+      */
     this(loc location)
     {
         this.location = location;
         this.type_string = classInfoNameToPlainName(toUpper(this.classinfo.name));
     }
 
+    /** 
+      * Overridable method to print the token name, and optionally the string
+      * which generated the token. (i.e ID(somevarname))
+      */
     override string toString()
     {
         return this.type_string;
@@ -55,6 +81,9 @@ unittest
     assert(t.toString() == "TOKEN");
 }
 
+/** 
+  * subclass token as a for keywords
+  */
 class keyword : token
 {
     this(loc location)
@@ -99,6 +128,9 @@ unittest
     assert(t.toString() == "ID(foo)");
 }
 
+/** 
+  * Abstract base for parenthesis tokens
+  */
 abstract class paren : token
 {
     this(loc location, string token_string)
@@ -106,6 +138,11 @@ abstract class paren : token
         this(location, token_string, this.allowed_parenthesis);
     }
 
+    /** 
+      * parent constructor takes a location, the string which generated the
+      * token, and a list if characters which are allowed to be considered
+      * parenthesis tokens.
+      */
     this(loc location, string token_string, immutable string[] parenthesis)
     {
         import std.algorithm : canFind;

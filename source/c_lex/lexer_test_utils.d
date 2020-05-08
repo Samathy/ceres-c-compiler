@@ -1,3 +1,12 @@
+/**
+* Copyright: 2020 Samathy Barratt
+*
+* Authors: Samathy Barratt
+* License: BSD 3-Clause
+*
+* This file is part of the Ceres C compiler
+*
+*/
 module c_lex.lexer_test_utils;
 
 import std.traits : BaseTypeTuple;
