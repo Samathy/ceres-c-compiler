@@ -341,7 +341,7 @@ unittest
         testIntermediateState!(start!(char[], char), char[], char)(cases);
     }
 
-    template isIf(Range, RangeChar) if (isInputRange!Range && isSomeChar!RangeChar)
+template isIf(Range, RangeChar) if (isInputRange!Range && isSomeChar!RangeChar)
     {
         class isIf : state!(Range, RangeChar)
         {
@@ -409,94 +409,93 @@ unittest
         }
     }
 
-    unittest
-    {
-        tcase caseOne = {
-            cast(char[]) "f ", cast(char[]) "if", false, true, "start", cast(char[]) "i"
+unittest
+{
+tcase caseOne = {
+    cast(char[]) "f ", cast(char[]) "if", false, true, "start", cast(char[]) "i"
+};
+tcase caseTwo = {
+    cast(char[]) "fxx", cast(char[]) "if", false, false, "isIdentifier", cast(char[]) "i"
     };
-    tcase caseTwo = {
-        cast(char[]) "fxx", cast(char[]) "if", false, false, "isIdentifier", cast(char[]) "i"
-        };
-        tcase caseThree = {
-            cast(char[]) "f;", cast(char[]) "if", false, true, "start", cast(char[]) "i"
+    tcase caseThree = {
+        cast(char[]) "f;", cast(char[]) "if", false, true, "start", cast(char[]) "i"
+};
+tcase caseFour = {
+    cast(char[]) "f", cast(char[]) "if", false, true, "start", cast(char[]) "i"
     };
-    tcase caseFour = {
-        cast(char[]) "f", cast(char[]) "if", false, true, "start", cast(char[]) "i"
-        };
 
-        tcase[4] cases = [caseOne, caseTwo, caseThree, caseFour];
+    tcase[4] cases = [caseOne, caseTwo, caseThree, caseFour];
 
-        testKeywordEmissionState!(isIf!(char[], char), char[], char)(cases);
-    }
+    testKeywordEmissionState!(isIf!(char[], char), char[], char)(cases);
+}
 
-    template isIdentifier(Range, RangeChar)
-            if (isInputRange!Range && isSomeChar!RangeChar)
+template isIdentifier(Range, RangeChar)
+        if (isInputRange!Range && isSomeChar!RangeChar)
+{
+    class isIdentifier : state!(Range, RangeChar)
     {
-        class isIdentifier : state!(Range, RangeChar)
+        import std.uni : isAlpha, isWhite, isPunctuation;
+        import c_lex.token;
+        import c_lex.location;
+
+        this(Range f, void delegate(token t) emission_function)
         {
-            import std.uni : isAlpha, isWhite, isPunctuation;
-            import c_lex.token;
-            import c_lex.location;
+            super(f, emission_function);
+        }
 
-            this(Range f, void delegate(token t) emission_function)
+        // An 'I' and an F has been detected
+        override state!(Range, RangeChar) opCall()
+        {
+            auto c = this.f.front();
+
+            while (!f.empty())
             {
-                super(f, emission_function);
-            }
+                c = this.f.front();
 
-            // An 'I' and an F has been detected
-            override state!(Range, RangeChar) opCall()
-            {
-                auto c = this.f.front();
-
-                while (!f.empty())
+                if (isAlpha(c))
                 {
-                    c = this.f.front();
-
-                    if (isAlpha(c))
-                    {
-                        this.character_buffer ~= c;
-                        this.f.popFront();
-                    }
-                    else if (isWhite(c))
-                    {
-                        loc l;
-                        //Don't popfront, let the start state handle that whitespace
-                        this.emit(new id(l, cast(immutable char[]) this.character_buffer));
-                        break;
-                    }
-                    else if (isPunctuation(c))
-                    {
-                        loc l;
-                        //Don't popfront, let the start state handle that punctuation
-                        this.emit(new punctuator(l, new string(c)));
-                        break;
-                    }
-                    else
-                    {
-                        throw new stateException("Unexpected character");
-                    }
+                    this.character_buffer ~= c;
+                    this.f.popFront();
                 }
-
-                return new start!(Range, RangeChar)(this.f, this.emission_function);
-
+                else if (isWhite(c))
+                {
+                    loc l;
+                    //Don't popfront, let the start state handle that whitespace
+                    this.emit(new id(l, cast(immutable char[]) this.character_buffer));
+                    break;
+                }
+                else if (isPunctuation(c))
+                {
+                    loc l;
+                    //Don't popfront, let the start state handle that punctuation
+                    this.emit(new punctuator(l, new string(c)));
+                    break;
+                }
+                else
+                {
+                    throw new stateException("Unexpected character");
+                }
             }
+
+            return new start!(Range, RangeChar)(this.f, this.emission_function);
 
         }
+
     }
+}
 
-    unittest
-    {
+unittest
+{
+    import c_lex.token : classInfoNameToPlainName;
 
-        import c_lex.token : classInfoNameToPlainName;
+    tcase caseOne = {cast(char[]) "THING ", cast(char[]) "THING", false, true
+};
+tcase caseTwo = {cast(char[]) "THING\n", cast(char[]) "THING", false, true};
+tcase caseThree = {cast(char[]) " THING", cast(char[]) "", false, true};
 
-        tcase caseOne = {cast(char[]) "THING ", cast(char[]) "THING", false, true
-    };
-    tcase caseTwo = {cast(char[]) "THING\n", cast(char[]) "THING", false, true};
-    tcase caseThree = {cast(char[]) " THING", cast(char[]) "", false, true};
+tcase[3] cases = [caseOne, caseTwo, caseThree];
 
-    tcase[3] cases = [caseOne, caseTwo, caseThree];
-
-    testEmissionState!(isIdentifier!(char[], char), char[], char)(cases);
+testEmissionState!(isIdentifier, char[], char)(cases);
 }
 
 template isHexOrOct(Range, RangeChar)
