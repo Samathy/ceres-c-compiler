@@ -9,7 +9,7 @@
 */
 module ceres.lexer.token;
 
-import std.string : toUpper, lastIndexOf;
+import std.string : toUpper, lastIndexOf, format;
 
 import ceres.lexer.location : loc;
 
@@ -64,7 +64,7 @@ class token
       */
     override string toString()
     {
-        return this.type_string;
+        return format("%s:%s    %s", this.location.line_no, this.location.column_no, this.type_string);
     }
 
     private
@@ -472,7 +472,7 @@ class ID : token
 
     override string toString()
     {
-        return this.type_string ~ "(" ~ this.token_string ~ ")";
+        return format("%s:%s    %s (%s)",this.location.line_no, this.location.column_no, this.type_string, this.token_string);
     }
 
     private

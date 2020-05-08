@@ -16,7 +16,7 @@ module ceres.lexer.location;
   */
 struct loc
 {
-    int line_no;
+    int line_no = 1;
     int column_no;
     string filename;
 }

@@ -11,6 +11,8 @@ module ceres.lexer.mmrangefile;
 
 import std.range;
 
+import ceres.lexer.location: loc;
+
 /** 
   * An input range backed by a memory-mapped file
   * This is the primary input to the lexer.
@@ -28,6 +30,7 @@ class mmrangefile
     {
         this.filename = filename;
         this.f = new MmFile(filename);
+        this.current_location.filename = filename;
     }
 
     @property bool empty()
@@ -48,6 +51,15 @@ class mmrangefile
     void popFront()
     {
         this.iterator++;
+
+        if ( isNewLine(this.f[this.iterator]) )
+        {
+            this.current_location.line_no += 1;
+            this.current_location.column_no = 0;
+        }
+        else
+            this.current_location.column_no += 1;
+
     }
 
     size_t length()
@@ -55,11 +67,24 @@ class mmrangefile
         return this.f.length();
     }
 
+    private bool isNewLine(char character)
+    {
+        import std.uni: lineSep, paraSep, nelSep;
+        if (character == lineSep || character == paraSep || character == nelSep)
+            return true;
+        else if ( character == '\n' || character == '\r' )
+            return true;
+        else 
+            return false;
+    }
+
     string filename;
+    loc current_location;
 
     private
     {
         MmFile f;
+
 
         int iterator;
 

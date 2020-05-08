@@ -435,6 +435,9 @@ template state_template(Range, RangeChar)
 
             if (this.character_buffer.back() == 'i' && c == 'f')
             {
+                loc l = this.f.current_location;
+                l.column_no -= this.character_buffer.length;
+
                 this.character_buffer ~= c;
                 this.f.popFront(); //Consume character
 
@@ -444,7 +447,6 @@ template state_template(Range, RangeChar)
                 }
                 else
                 {
-                    loc l;
                     this.emit(new IF(l));
                     return new state_template!(Range, RangeChar).start(this.f,
                             this.emission_function);
@@ -452,7 +454,6 @@ template state_template(Range, RangeChar)
 
                 if (isWhite(c) || isPunctuation(c))
                 {
-                    loc l;
                     this.emit(new IF(l));
                     return new state_template!(Range, RangeChar).start(this.f,
                             this.emission_function);
@@ -501,12 +502,15 @@ template state_template(Range, RangeChar)
 
         override state opCall()
         {
+            loc l; 
             auto c = this.f.front();
             /* Consume characters until we see one which 
        cant be part of an identifier */
             while (!f.empty())
             {
                 c = this.f.front();
+                l = this.f.current_location;
+                l.column_no -= this.character_buffer.length-1; //Identifiers start at the whitespace
 
                 if (isAlpha(c))
                 {
@@ -515,7 +519,6 @@ template state_template(Range, RangeChar)
                 }
                 else if (isWhite(c))
                 {
-                    loc l;
                     //Don't popfront, let the start state handle that whitespace
                     this.emit(new ID(l, cast(immutable char[]) this.character_buffer));
                     break;
@@ -594,6 +597,8 @@ template state_template(Range, RangeChar)
 
         override state opCall()
         {
+            loc l = this.f.current_location;
+            l.column_no -= this.character_buffer.length;
             RangeChar c = this.f.front();
 
             while (!f.empty())
@@ -620,7 +625,6 @@ template state_template(Range, RangeChar)
             //If we've only got a 0x then we have a bad hex constant
             if (this.character_buffer.length > 2)
             {
-                loc l;
                 this.emit(new hexLiteral(l,
                         cast(immutable RangeChar[]) this.character_buffer));
             }
