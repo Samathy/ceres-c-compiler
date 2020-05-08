@@ -388,6 +388,11 @@ template state_template(Range, RangeChar)
                 case '+':
                 case '-':
                 case '=':
+                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
+
                 case '<':
                 case '>':
                 case '^':
@@ -839,7 +844,7 @@ template state_template(Range, RangeChar)
      */
     class isOperator : state
     {
-        import ceres.lexer.token : mod, lessThan, or, token;
+        import ceres.lexer.token : mod, lessThan, moreThan, or, assign, add, sub, token;
         import ceres.lexer.location : loc;
 
         this(Range f, void delegate(token t) emission_function)
@@ -859,23 +864,33 @@ template state_template(Range, RangeChar)
             switch (this.character_buffer[0])
             {
             case '+':
-                throw new stateException("Unknown operator: " ~ this.character_buffer[0]); //Please remove this.
+                this.emit(new add(l, cast(immutable char[]) this.character_buffer));
+                return new state_template!(Range, RangeChar).start(this.f,
+                        this.emission_function);
             case '-':
-                throw new stateException("Unknown operator: " ~ this.character_buffer[0]); //Please remove this.
+                this.emit(new sub(l, cast(immutable char[]) this.character_buffer));
+                return new state_template!(Range, RangeChar).start(this.f,
+                        this.emission_function);
             case '%':
                 this.emit(new mod(l, cast(immutable char[]) this.character_buffer));
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
             case '=':
-                throw new stateException("Unknown operator: " ~ this.character_buffer[0]); //Please remove this.
+                this.emit(new assign(l, cast(immutable char[]) this.character_buffer));
+                return new state_template!(Range, RangeChar).start(this.f,
+                        this.emission_function);
             case '>':
-                throw new stateException("Unknown operator: " ~ this.character_buffer[0]); //Please remove this.
+                this.emit(new moreThan(l, cast(immutable char[]) this.character_buffer));
+                return new state_template!(Range, RangeChar).start(this.f,
+                        this.emission_function);
             case '<':
                 this.emit(new lessThan(l, cast(immutable char[]) this.character_buffer));
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
             case '&':
-                throw new stateException("Unknown operator: " ~ this.character_buffer[0]); //Please remove this.
+                this.emit(new or(l, cast(immutable char[]) this.character_buffer));
+                return new state_template!(Range, RangeChar).start(this.f,
+                        this.emission_function);
             case '|':
                 if (this.character_buffer[0] == this.f.front())
                 {
