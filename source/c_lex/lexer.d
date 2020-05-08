@@ -3,6 +3,8 @@ module c_lex.lexer;
 version (unittest)
 {
     import std.stdio : writeln;
+
+    import c_lex.lexer_test_utils: tcase, testLexer, testEmissionState, testIntermediateState, testKeywordEmissionState;
 }
 
 import std.range.primitives : popFront, empty, isInputRange;
@@ -199,12 +201,30 @@ template state_template(Range, RangeChar) if (isInputRange!Range && isSomeChar!R
             return this;
         }
 
-        private
+        version(unittest)
         {
+            /*  
+            This conditional comp looks awful, 
+            we should figure out
+            some way to not be doing this.
+            */
+            package
+            {
             Range f;
             RangeChar[] character_buffer;
             bool emitted = false;
             void delegate(token t) emission_function;
+            }
+        }
+        else
+        {
+            private
+            {
+                Range f;
+                RangeChar[] character_buffer;
+                bool emitted = false;
+                void delegate(token t) emission_function;
+            }
         }
     }
 
