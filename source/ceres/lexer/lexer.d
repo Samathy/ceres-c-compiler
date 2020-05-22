@@ -1044,23 +1044,39 @@ template state_template(Range, RangeChar)
 @BlerpTest("test_start_state") unittest
 {
 
+    import std.typecons: tuple, Tuple;
+
     tcase caseOne = { input:cast(char[]) "i", char_buffer_expected:cast(char[]) "isIf" };
     tcase caseTwo = { input: cast(char[]) "if (foo", char_buffer_expected: cast(char[]) "isIf" };
     tcase caseThree = { input: cast(char[]) "ifonlyIcould ", char_buffer_expected: cast(char[]) "isIf"};
-    tcase caseFour = { input: cast(char[]) "0xDEADBEEF", cast(char[]) "isHexOrOct", false, false, "", cast(char[]) "" };
+    tcase caseFour = { input: cast(char[]) "0xDEADBEEF", char_buffer_expected: cast(char[]) "isHexOrOct", false, false, "", cast(char[]) "" };
     tcase caseFive = {
-        cast(char[]) "0123456", cast(char[]) "isHexOrOct", false, false, "", cast(char[]) ""
-        };
+        input: cast(char[]) "0123456", char_buffer_expected: cast(char[]) "isHexOrOct"};
     tcase caseSix = {
-        cast(char[]) "102937", cast(char[]) "isInteger", false, false, "", cast(char[]) ""
-        };
+        input: cast(char[]) "102937", char_buffer_expected: cast(char[]) "isInteger" };
     tcase caseSeven = {
-        cast(char[]) "10xxx", cast(char[]) "isInteger", true, false, "", cast(char[]) ""
-    };
+        input: cast(char[]) "10xxx", char_buffer_expected: cast(char[]) "isInteger", throws: true};
 
-    tcase[7] cases = [
-        caseOne, caseTwo, caseThree, caseFour, caseFive, caseSix, caseSeven
+    Tuple!(string,string)[15] punc = [
+        tuple(")", "isRparen"), tuple("}", "isRparen"), tuple("]", "isRparen"), 
+        tuple("(", "isLparen"),tuple("{", "isLparen"), tuple("[", "isLparen"),
+        tuple("+","isOperator"),tuple("-","isOperator"), tuple("=","isOperator"),
+        tuple("<","isOperator"),tuple(">","isOperator"),tuple("^","isOperator"),
+        tuple("&","isOperator"),tuple("|","isOperator"),tuple(";", "isOperator")];
+
+    tcase[] puncCases;
+
+    //We have lots of punctuation cases that are similar
+    foreach(puncTuple;  punc)
+    {
+        tcase t = { input: cast(char[]) puncTuple[0], char_buffer_expected: cast(char[]) puncTuple[1],  emits: false};
+        puncCases ~= t;
+    }
+
+    tcase[] cases = [
+        caseOne, caseTwo, caseThree, caseFour, caseFive, caseSix, caseSeven, 
         ];
+    cases ~= puncCases;
 
     testIntermediateState!(state_template!(char[], char).start, char[], char)(cases);
 }
