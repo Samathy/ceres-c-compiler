@@ -441,6 +441,16 @@ template state_template(Range, RangeChar)
                             this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
+                case '*':
+                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
+                case '/':
+                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
                 case '=':
                     auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
                             this.emission_function);
@@ -929,8 +939,10 @@ template state_template(Range, RangeChar)
      */
     class isOperator : state
     {
-        import ceres.lexer.token : semi, mod, lessThan, moreThan, or, assign, add, sub, token;
+        import ceres.lexer.token : semi, mod, lessThan, moreThan, and, or, assign, add, sub, mul, div, token;
         import ceres.lexer.location : loc;
+
+        import std.conv: to;
 
         this(Range f, void delegate(token t) emission_function)
         {
@@ -947,56 +959,83 @@ template state_template(Range, RangeChar)
             loc l = this.f.current_location;
             l.column_no -= this.character_buffer.length;
 
-            switch (this.character_buffer[0])
+            switch (this.character_buffer)
             {
-            case '+':
+            case "+":
                 this.emit(new add(l, cast(immutable char[]) this.character_buffer));
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
-            case '-':
+            case "-":
                 this.emit(new sub(l, cast(immutable char[]) this.character_buffer));
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
-            case '%':
+            case "*":
+                this.emit(new mul(l, cast(immutable char[]) this.character_buffer));
+                return new state_template!(Range, RangeChar).start(this.f,
+                        this.emission_function);
+            case "/":
+                this.emit(new div(l, cast(immutable char[]) this.character_buffer));
+                return new state_template!(Range, RangeChar).start(this.f,
+                        this.emission_function);
+            case "%":
                 this.emit(new mod(l, cast(immutable char[]) this.character_buffer));
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
-            case '=':
+            case "=":
                 this.emit(new assign(l, cast(immutable char[]) this.character_buffer));
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
-            case '>':
+            case ">":
                 this.emit(new moreThan(l, cast(immutable char[]) this.character_buffer));
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
-            case '<':
+            case "<":
                 this.emit(new lessThan(l, cast(immutable char[]) this.character_buffer));
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
-            case '&':
+            case "&":
+                import ceres.lexer.utils: isNewLine;
+
+                if (!this.f.empty && !isNewLine(this.f.front()))
+                {
+                    if (this.character_buffer[0] == this.f.front())
+                    {
+                        auto new_state = new state_template!(Range, RangeChar).logical(this.f,
+                                this.emission_function);
+                        new_state.character_buffer = this.character_buffer;
+                        return new_state;
+                    }
+
+                }
+
+                this.emit(new and(l, cast(immutable char[]) this.character_buffer));
+                return new state_template!(Range, RangeChar).start(this.f,
+                        this.emission_function);
+            case "|":
+                import ceres.lexer.utils: isNewLine;
+
+                if (!this.f.empty && !isNewLine(this.f.front()))
+                {
+                    if (this.character_buffer[0] == this.f.front())
+                    {
+                        auto new_state = new state_template!(Range, RangeChar).logical(this.f,
+                                this.emission_function);
+                        new_state.character_buffer = this.character_buffer;
+                        return new_state;
+                    }
+
+                }
+
                 this.emit(new or(l, cast(immutable char[]) this.character_buffer));
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
-            case '|':
-                if (this.character_buffer[0] == this.f.front())
-                {
-                    auto new_state = new state_template!(Range, RangeChar).logical(this.f,
-                            this.emission_function);
-                    new_state.character_buffer = this.character_buffer;
-                    return new_state;
-                }
-                else
-                {
-                    this.emit(new or(l, cast(immutable char[]) this.character_buffer));
-                    return new state_template!(Range, RangeChar).start(this.f,
-                            this.emission_function);
-                }
-            case ';':
+
+            case ";":
                 this.emit(new semi(l, cast(immutable char[]) this.character_buffer));
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
             default:
-                throw new stateException("Unknown operator: " ~ this.character_buffer[0]); //Please remove this.
+                throw new stateException("Unknown operator: " ~ to!string(this.character_buffer)); //Please remove this.
             }
 
         }
@@ -1194,3 +1233,36 @@ template state_template(Range, RangeChar)
 
     testEmissionState!(state_template!(char[], char).isOperator, char[], char)(cases);
 }
+
+@BlerpTest("test_isOperator")  unittest
+{
+    import std.typecons: Tuple, tuple;
+    Tuple!(string,string)[] punc = [
+        tuple("+", "add"), tuple("-", "sub"), tuple("*", "mul"), 
+        tuple("/", "div"),tuple("%", "mod"), tuple("=", "assign"),
+        tuple(">","moreThan"),tuple("<","lessThan"), tuple("&","and"),
+        tuple("|","or"), tuple(";", "semi")];
+
+    tcase[] puncCases;
+
+    //We have lots of punctuation cases that are similar
+    foreach(puncTuple;  punc)
+    {
+        tcase t = { prefilled_char_buffer: cast(char[]) puncTuple[0],  emits: true, emits_class: puncTuple[1]};
+        puncCases ~= t;
+    }
+
+    tcase caseOne = { input: cast(char[]) "|", char_buffer_expected: cast(char[]) "|", returns_class: "logical", prefilled_char_buffer: cast(char[]) "|"};
+    tcase caseTwo = { input: cast(char[]) "&", char_buffer_expected: cast(char[]) "&", returns_class: "logical" , prefilled_char_buffer: cast(char[]) "&"};
+
+    tcase[] intermediate_cases = [caseOne, caseTwo];
+    tcase[] cases;
+    cases ~= puncCases;
+
+    //testEmissionState!(state_template!(char[], char).isOperator, char[], char)(cases);
+
+    testIntermediateState!(state_template!(char[], char).isOperator, char[], char)(intermediate_cases);
+    
+}
+
+

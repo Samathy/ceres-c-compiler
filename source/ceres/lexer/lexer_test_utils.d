@@ -76,8 +76,6 @@ version (unittest)
                     
                     assert(I.emitted == testcase.emits, format("Test case %s did not emit", i));
                     //Overloading char_buffer_expected
-                    assert(equal(testcase.char_buffer_expected, I.character_buffer),
-                            format("Test case %s character buffers did not match", i));
                 
                 }
 
@@ -104,6 +102,7 @@ version (unittest)
             foreach (size_t i, testcase; cases)
             {
                 auto I = new testcaseState(testcase.input, (token t) { return; });
+                I.character_buffer = testcase.prefilled_char_buffer;
                 state_template!(Range, RangeChar).state opCallRet;
 
                 try
@@ -112,7 +111,7 @@ version (unittest)
                 }
                 catch (Exception e)
                 {
-                    assert(testcase.throws, "Test case threw: " ~ e.msg);
+                    assert(testcase.throws, format("Test case %s threw: %s", i, e.msg));
                     return false;
                 }
 
