@@ -11,18 +11,19 @@ module ceres.lexer.mmrangefile;
 
 import std.range;
 
-import ceres.lexer.location: loc;
+import ceres.lexer.location : loc;
 
 version (unittest)
 {
     import blerp.blerp;
+
     static this()
     {
         runTests!(__MODULE__);
     }
 }
 
-import blerp.blerp: BlerpTest;
+import blerp.blerp : BlerpTest;
 
 /** 
   * An input range backed by a memory-mapped file
