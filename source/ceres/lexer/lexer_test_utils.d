@@ -44,16 +44,21 @@ version (unittest)
         {
             import std.algorithm : equal;
             import std.stdio;
+            import std.format: format;
+            import ceres.lexer.token : classInfoNameToPlainName, token;
 
             foreach (testcase; cases)
             {
-                auto I = new testcaseState(testcase.input, (token) { return; });
+                token emitted;
+                auto I = new testcaseState(testcase.input, delegate(token t) { emitted = t; });
 
                 I.character_buffer = testcase.prefilled_char_buffer;
+                
+                state_template!(Range, RangeChar).state opCallRet;
 
                 try
                 {
-                    auto opCallRet = I();
+                    opCallRet = I();
                 }
                 catch (Exception e)
                 {
@@ -63,8 +68,16 @@ version (unittest)
                 if (!testcase.throws)
                 {
                     assert(I.emitted == testcase.emits, "Testcase did not emit");
+                    //Overloading char_buffer_expected
                     assert(equal(testcase.char_buffer_expected, I.character_buffer),
                             "Test case character buffers did not match");
+
+                
+                }
+
+                if ( testcase.emits )
+                {
+                    assert ( classInfoNameToPlainName(typeid(emitted).name) == testcase.emits_class, format("Should have emitted %s, actually emitted %s", testcase.emits_class, classInfoNameToPlainName(typeid(emitted).name)));
                 }
 
             }
