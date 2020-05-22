@@ -402,32 +402,76 @@ template state_template(Range, RangeChar)
                 switch (c)
                 {
                 case ')':
+                    auto next_state = new state_template!(Range, RangeChar).isRparen(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
                 case '}':
+                    auto next_state = new state_template!(Range, RangeChar).isRparen(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
                 case ']':
                     auto next_state = new state_template!(Range, RangeChar).isRparen(this.f,
                             this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
                 case '(':
+                    auto next_state = new state_template!(Range, RangeChar).isLparen(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
                 case '{':
+                    auto next_state = new state_template!(Range, RangeChar).isLparen(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
                 case '[':
                     auto next_state = new state_template!(Range, RangeChar).isLparen(this.f,
                             this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
                 case '+':
+                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
                 case '-':
+                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
                 case '=':
                     auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
                             this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
-
                 case '<':
+                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
                 case '>':
+                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
                 case '^':
+                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
                 case '&':
+                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
                 case '|':
+                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
+                case ';':
                     auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
                             this.emission_function);
                     next_state.buffer_char(c);
@@ -885,7 +929,7 @@ template state_template(Range, RangeChar)
      */
     class isOperator : state
     {
-        import ceres.lexer.token : mod, lessThan, moreThan, or, assign, add, sub, token;
+        import ceres.lexer.token : semi, mod, lessThan, moreThan, or, assign, add, sub, token;
         import ceres.lexer.location : loc;
 
         this(Range f, void delegate(token t) emission_function)
@@ -947,6 +991,10 @@ template state_template(Range, RangeChar)
                     return new state_template!(Range, RangeChar).start(this.f,
                             this.emission_function);
                 }
+            case ';':
+                this.emit(new semi(l, cast(immutable char[]) this.character_buffer));
+                return new state_template!(Range, RangeChar).start(this.f,
+                        this.emission_function);
             default:
                 throw new stateException("Unknown operator: " ~ this.character_buffer[0]); //Please remove this.
             }
