@@ -23,14 +23,14 @@ version (unittest)
     //TODO add useful messages to the asserts here.
     struct tcase
     {
-        char[] input = cast(char[]) "";
-        char[] char_buffer_expected = cast(char[]) "";
+        char[] input = cast(char[]) ""; //The input string
+        char[] char_buffer_expected = cast(char[]) ""; //What should be in the character buffer on return?
         bool throws = false;
-        bool emits = false;
-        string emits_class = "";
-        char[] prefilled_char_buffer = cast(char[]) "";
-        int emitted_token_count = 0;
-        token_list tokens = new token_list();
+        bool emits = false; //Emits a token?
+        string emits_class = ""; //Which token?
+        char[] prefilled_char_buffer = cast(char[]) ""; //Prefill the input char buffer
+        int emitted_token_count = 0; //How many tokens are emitted ( This isnt used )
+        string returns_class = ""; 
     }
 
     template testEmissionState(testcaseState, Range, RangeChar)
@@ -47,7 +47,7 @@ version (unittest)
             import std.format: format;
             import ceres.lexer.token : classInfoNameToPlainName, token;
 
-            foreach (testcase; cases)
+            foreach (size_t i, testcase; cases)
             {
                 token emitted;
                 auto I = new testcaseState(testcase.input, delegate(token t) { emitted = t; });
@@ -67,18 +67,20 @@ version (unittest)
 
                 if (!testcase.throws)
                 {
-                    assert(I.emitted == testcase.emits, "Testcase did not emit");
+                    if ( testcase.emits )
+                    {
+                        assert ( classInfoNameToPlainName(typeid(emitted).name) == testcase.emits_class, 
+                                format("Test case %s should have emitted %s, actually emitted %s",
+                                    i, testcase.emits_class, classInfoNameToPlainName(typeid(emitted).name)));
+                    }
+                    
+                    assert(I.emitted == testcase.emits, format("Test case %s did not emit", i));
                     //Overloading char_buffer_expected
                     assert(equal(testcase.char_buffer_expected, I.character_buffer),
-                            "Test case character buffers did not match");
-
+                            format("Test case %s character buffers did not match", i));
                 
                 }
 
-                if ( testcase.emits )
-                {
-                    assert ( classInfoNameToPlainName(typeid(emitted).name) == testcase.emits_class, format("Should have emitted %s, actually emitted %s", testcase.emits_class, classInfoNameToPlainName(typeid(emitted).name)));
-                }
 
             }
 
@@ -97,8 +99,9 @@ version (unittest)
         bool testIntermediateState(tcase[] cases)
         {
             import ceres.lexer.token : classInfoNameToPlainName, token;
+            import std.format: format;
 
-            foreach (testcase; cases)
+            foreach (size_t i, testcase; cases)
             {
                 auto I = new testcaseState(testcase.input, (token t) { return; });
                 state_template!(Range, RangeChar).state opCallRet;
@@ -113,9 +116,10 @@ version (unittest)
                     return false;
                 }
 
-                //TODO should use 'emits_class' instead of re-using char_buffer_expected.
                 assert(classInfoNameToPlainName(typeid(opCallRet)
-                        .name) == testcase.char_buffer_expected);
+                        .name) == testcase.returns_class, 
+                        format("Test case %s should return class %s actually returned %s", 
+                        i, testcase.returns_class, classInfoNameToPlainName(typeid(opCallRet).name)));
             }
 
             return true;
@@ -133,12 +137,15 @@ version (unittest)
         bool testKeywordEmissionState(tcase[] cases)
         {
             import std.algorithm : equal;
-            import ceres.lexer.token : classInfoNameToPlainName;
+            import std.format: format;
+            import ceres.lexer.token : classInfoNameToPlainName, token;
 
-            foreach (testcase; cases)
+            foreach (size_t i, testcase; cases)
             {
+                
+                token emitted;
 
-                auto I = new testcaseState(testcase.input, (token) { return; });
+                auto I = new testcaseState(testcase.input, delegate(token t) { emitted = t; });
                 I.character_buffer = testcase.prefilled_char_buffer;
 
                 state_template!(Range, RangeChar).state opCallRet;
@@ -154,11 +161,16 @@ version (unittest)
 
                 if (!testcase.throws)
                 {
-                    assert(I.emitted == testcase.emits, "Test case did not emit");
+                    if (testcase.emits)
+                    {
+                        assert(I.emitted == testcase.emits, format("Test case %s did not emit", i));
+                        assert ( classInfoNameToPlainName(typeid(emitted).name) == testcase.emits_class, 
+                                format("Test case %s Should have emitted class %s, actually emitted %s",i, testcase.emits_class, classInfoNameToPlainName(typeid(emitted).name)));
+                    }
                     assert(equal(testcase.char_buffer_expected, I.character_buffer),
-                            "Testcase character buffers do not match");
-                    assert(classInfoNameToPlainName(typeid(opCallRet).name) == testcase.emits_class);
+                            format("Test case %s character buffers do not match", i));
                 }
+
             }
             return true;
         }

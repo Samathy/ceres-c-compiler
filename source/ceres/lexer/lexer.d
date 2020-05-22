@@ -1046,13 +1046,13 @@ template state_template(Range, RangeChar)
 
     import std.typecons: tuple, Tuple;
 
-    tcase caseOne = { input:cast(char[]) "i", char_buffer_expected:cast(char[]) "isIf" };
-    tcase caseTwo = { input: cast(char[]) "if (foo", char_buffer_expected: cast(char[]) "isIf" };
-    tcase caseThree = { input: cast(char[]) "ifonlyIcould ", char_buffer_expected: cast(char[]) "isIf"};
-    tcase caseFour = { input: cast(char[]) "0xDEADBEEF", char_buffer_expected: cast(char[]) "isHexOrOct", false, false, "", cast(char[]) "" };
-    tcase caseFive = { input: cast(char[]) "0123456", char_buffer_expected: cast(char[]) "isHexOrOct"};
-    tcase caseSix = { input: cast(char[]) "102937", char_buffer_expected: cast(char[]) "isInteger" };
-    tcase caseSeven = { input: cast(char[]) "10xxx", char_buffer_expected: cast(char[]) "isInteger", throws: true};
+    tcase caseOne = { input:cast(char[]) "i", returns_class: "isIf" };
+    tcase caseTwo = { input: cast(char[]) "if (foo", returns_class: "isIf" };
+    tcase caseThree = { input: cast(char[]) "ifonlyIcould ", returns_class:"isIf"};
+    tcase caseFour = { input: cast(char[]) "0xDEADBEEF", returns_class: "isHexOrOct"};
+    tcase caseFive = { input: cast(char[]) "0123456", returns_class: "isHexOrOct"};
+    tcase caseSix = { input: cast(char[]) "102937", returns_class: "isInteger" };
+    tcase caseSeven = { input: cast(char[]) "10xxx", returns_class: "isInteger", throws: true};
 
     Tuple!(string,string)[15] punc = [
         tuple(")", "isRparen"), tuple("}", "isRparen"), tuple("]", "isRparen"), 
@@ -1066,7 +1066,7 @@ template state_template(Range, RangeChar)
     //We have lots of punctuation cases that are similar
     foreach(puncTuple;  punc)
     {
-        tcase t = { input: cast(char[]) puncTuple[0], char_buffer_expected: cast(char[]) puncTuple[1],  emits: false};
+        tcase t = { input: cast(char[]) puncTuple[0], returns_class: puncTuple[1],  emits: false};
         puncCases ~= t;
     }
 
@@ -1080,10 +1080,10 @@ template state_template(Range, RangeChar)
 
 @BlerpTest("test_isIf") unittest
 {
-    tcase caseOne = { input: cast(char[]) "f ", char_buffer_expected: cast(char[])"if", emits:true, emits_class:"start", prefilled_char_buffer:cast(char[]) "i"};
-    tcase caseTwo = { input: cast(char[]) "fxx", char_buffer_expected: cast(char[]) "if", emits_class:"isIdentifier", prefilled_char_buffer:cast(char[]) "i" };
-    tcase caseThree = { input: cast(char[]) "f;", char_buffer_expected: cast(char[]) "if", emits: true, emits_class: "start", prefilled_char_buffer:cast(char[]) "i" };
-    tcase caseFour = { input: cast(char[]) "f", char_buffer_expected: cast(char[]) "if", emits: true, emits_class: "start", prefilled_char_buffer: cast(char[]) "i" };
+    tcase caseOne = { input: cast(char[]) "f ", char_buffer_expected: cast(char[])"if", emits:true, emits_class:"IF", prefilled_char_buffer:cast(char[]) "i"};
+    tcase caseTwo = { input: cast(char[]) "fxx", char_buffer_expected: cast(char[]) "if", prefilled_char_buffer:cast(char[]) "i" };
+    tcase caseThree = { input: cast(char[]) "f;", char_buffer_expected: cast(char[]) "if", emits: true, emits_class: "IF", prefilled_char_buffer:cast(char[]) "i" };
+    tcase caseFour = { input: cast(char[]) "f", char_buffer_expected: cast(char[]) "if", emits: true, emits_class: "IF", prefilled_char_buffer: cast(char[]) "i" };
 
     tcase[] cases = [caseOne, caseTwo, caseThree, caseFour];
 
@@ -1094,9 +1094,9 @@ template state_template(Range, RangeChar)
 {
     import ceres.lexer.token : classInfoNameToPlainName;
 
-    tcase caseOne = {input:cast(char[]) "THING ", char_buffer_expected:cast(char[]) "THING", emits:true };
-    tcase caseTwo = {input:cast(char[]) "THING\n", char_buffer_expected:cast(char[]) "THING", emits: true };
-    tcase caseThree = {input:cast(char[]) " THING", char_buffer_expected:cast(char[]) "", false, true};
+    tcase caseOne = {input:cast(char[]) "THING ", char_buffer_expected:cast(char[]) "THING", emits:true, emits_class: "ID" };
+    tcase caseTwo = {input:cast(char[]) "THING\n", char_buffer_expected:cast(char[]) "THING", emits: true, emits_class: "ID" };
+    tcase caseThree = {input:cast(char[]) " THING", char_buffer_expected:cast(char[]) "",  emits:true, emits_class: "ID"};
 
     tcase[] cases = [caseOne, caseTwo, caseThree];
 
@@ -1107,9 +1107,9 @@ template state_template(Range, RangeChar)
 {
     import ceres.lexer.token : classInfoNameToPlainName; //ClassInfo.name is the same form as TypeInfo.name
 
-    tcase caseOne = {input:cast(char[]) "x12", char_buffer_expected:cast(char[]) "isHex", emits:true};
-    tcase caseTwo = {input:cast(char[]) "034", char_buffer_expected:cast(char[]) "isOct", emits: true};
-    tcase caseThree = {input:cast(char[]) "9", char_buffer_expected:cast(char[]) "isOct", throws: true};
+    tcase caseOne = {input:cast(char[]) "x12", returns_class: "isHex", emits:false};
+    tcase caseTwo = {input:cast(char[]) "034", returns_class: "isOct", emits: false};
+    tcase caseThree = {input:cast(char[]) "9", returns_class: "isOct", throws: true};
 
     tcase[] cases = [caseOne, caseTwo, caseThree];
 
@@ -1121,9 +1121,9 @@ template state_template(Range, RangeChar)
 {
     //The first 2 characters would have already been eaten by isOct - so we might not need
     // to check for 0x.
-    tcase case1 = {input:cast(char[]) "56FA", char_buffer_expected:cast(char[]) "56FA", emits: true,emits_class: "isHex"};
-    tcase case2 = {input:cast(char[]) "000665  ", char_buffer_expected:cast(char[]) "000665", emits: true,emits_class: "isHex"};
-    tcase case3 = {input:cast(char[]) "AAB44;", char_buffer_expected:cast(char[]) "AAB44", emits: true,emits_class: "isHex"};
+    tcase case1 = {input:cast(char[]) "56FA", char_buffer_expected:cast(char[]) "56FA", emits: true, emits_class: "hexLiteral"};
+    tcase case2 = {input:cast(char[]) "000665  ", char_buffer_expected:cast(char[]) "000665", emits: true,emits_class: "hexLiteral"};
+    tcase case3 = {input:cast(char[]) "AAB44;", char_buffer_expected:cast(char[]) "AAB44", emits: true,emits_class: "hexLiteral"};
     tcase case4 = {input:cast(char[]) ";", char_buffer_expected:cast(char[]) "", throws: true};
     tcase case5 = {input:cast(char[]) "01x;", char_buffer_expected:cast(char[]) "01", throws: true};
     tcase case6 = {input:cast(char[]) "0334453", char_buffer_expected:cast(char[]) "0334453", throws: true};
@@ -1137,9 +1137,9 @@ template state_template(Range, RangeChar)
 
 @BlerpTest("test_isOct") unittest
 {
-    tcase case1 = {input:cast(char[]) "1236654", char_buffer_expected:cast(char[]) "1236654", emits: true,emits_class: "isOct"};
-    tcase case2 = {input:cast(char[]) "00665  ", char_buffer_expected:cast(char[]) "00665", emits: true, emits_class: "isOct"};
-    tcase case3 = {input:cast(char[]) "0;0665  ", char_buffer_expected:cast(char[]) "0", emits: true, emits_class: "isOct"};
+    tcase case1 = {input:cast(char[]) "1236654", char_buffer_expected:cast(char[]) "1236654", emits: true,emits_class: "octLiteral"};
+    tcase case2 = {input:cast(char[]) "00665  ", char_buffer_expected:cast(char[]) "00665", emits: true, emits_class: "octLiteral"};
+    tcase case3 = {input:cast(char[]) "0;0665  ", char_buffer_expected:cast(char[]) "0", emits: true, emits_class: "octLiteral"};
     tcase case4 = {input:cast(char[]) "0x10", char_buffer_expected:cast(char[]) "0", throws:true };
     tcase case5 = {input:cast(char[]) "5742227", char_buffer_expected:cast(char[]) "02227", throws: true};
     tcase case6 = {input:cast(char[]) "0689993", char_buffer_expected:cast(char[]) "0689993", throws: true} ;
@@ -1151,9 +1151,9 @@ template state_template(Range, RangeChar)
 
 @BlerpTest("test_isInteger") unittest
 {
-    tcase case1 = {input: cast(char[]) "123455", char_buffer_expected: cast(char[]) "123455", emits:true, emits_class: "isInteger"};
-    tcase case2 = {input:cast(char[]) "9283  ", char_buffer_expected:cast(char[]) "9283", emits:true, emits_class: "isInteger"};
-    tcase case3 = {input:cast(char[]) "92;83  ", char_buffer_expected:cast(char[]) "92", emits:true, emits_class: "isInteger"};
+    tcase case1 = {input: cast(char[]) "123455", char_buffer_expected: cast(char[]) "123455", emits:true, emits_class: "integerLiteral"};
+    tcase case2 = {input:cast(char[]) "9283  ", char_buffer_expected:cast(char[]) "9283", emits:true, emits_class: "integerLiteral"};
+    tcase case3 = {input:cast(char[]) "92;83  ", char_buffer_expected:cast(char[]) "92", emits:true, emits_class: "integerLiteral"};
     tcase case4 = {input:cast(char[]) "0x10", char_buffer_expected:cast(char[]) "0x10", throws: true} ;
     tcase case5 = {input:cast(char[]) "02227", char_buffer_expected:cast(char[]) "02227", throws:true};
 
@@ -1164,9 +1164,9 @@ template state_template(Range, RangeChar)
 
 @BlerpTest("test_isRparen") unittest
 {
-    tcase caseOne = { input: cast(char[]) ")", char_buffer_expected: cast(char[]) ")",  emits: true, emits_class: "rparen", emitted_token_count: 1, prefilled_char_buffer: cast(char[]) ")"};
-    tcase caseTwo = { input: cast(char[]) "}", char_buffer_expected: cast(char[]) "}", emits: true, emits_class: "rparen", emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "}"};
-    tcase caseThree = { input: cast(char[]) "]", char_buffer_expected: cast(char[]) "]", emits: true, emits_class: "rparen", emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "]" };
+    tcase caseOne = { input: cast(char[]) ")", char_buffer_expected: cast(char[]) ")",  emits: true, emits_class: "rparen", prefilled_char_buffer: cast(char[]) ")"};
+    tcase caseTwo = { input: cast(char[]) "}", char_buffer_expected: cast(char[]) "}", emits: true, emits_class: "rcurly", prefilled_char_buffer: cast(char[]) "}"};
+    tcase caseThree = { input: cast(char[]) "]", char_buffer_expected: cast(char[]) "]", emits: true, emits_class: "rsquare", prefilled_char_buffer: cast(char[]) "]" };
     tcase caseFour = {input: cast(char[]) "i", throws: true };
 
     tcase[] cases = [caseOne, caseTwo, caseThree, caseFour];
@@ -1176,9 +1176,9 @@ template state_template(Range, RangeChar)
 
 @BlerpTest("test_isLparen") unittest
 {
-    tcase caseOne = { input: cast(char[]) "(", char_buffer_expected: cast(char[]) "(", emits: true, emits_class: "lparen", emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "(" };
-    tcase caseTwo = { input: cast(char[]) "{", char_buffer_expected: cast(char[]) "{", emits: true, emits_class: "lparen", emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "{" };
-    tcase caseThree = { input: cast(char[]) "[", char_buffer_expected: cast(char[]) "[", emits: true, emits_class: "lparen", emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "[" };
+    tcase caseOne = { input: cast(char[]) "(", char_buffer_expected: cast(char[]) "(", emits: true, emits_class: "lparen", prefilled_char_buffer: cast(char[]) "(" };
+    tcase caseTwo = { input: cast(char[]) "{", char_buffer_expected: cast(char[]) "{", emits: true, emits_class: "lcurly", prefilled_char_buffer: cast(char[]) "{" };
+    tcase caseThree = { input: cast(char[]) "[", char_buffer_expected: cast(char[]) "[", emits: true, emits_class: "lsquare", prefilled_char_buffer: cast(char[]) "[" };
     tcase caseFour = {input: cast(char[]) "i", throws: true };
 
     tcase[] cases = [caseOne, caseTwo, caseThree, caseFour];
@@ -1188,7 +1188,7 @@ template state_template(Range, RangeChar)
 
 @BlerpTest("test_isOct") unittest
 {
-    tcase caseOne = { input: cast(char[]) " 10", throws: false, emits: true, emits_class: "operator", prefilled_char_buffer: cast(char[]) "+", char_buffer_expected: cast(char[]) "+" };
+    tcase caseOne = { input: cast(char[]) " 10", throws: false, emits: true, emits_class: "add", prefilled_char_buffer: cast(char[]) "+", char_buffer_expected: cast(char[]) "+" };
 
     tcase[] cases = [caseOne];
 
