@@ -98,18 +98,21 @@ class mmrangefile
 @BlerpTest("test_mmrangefile") unittest
 {
     import std.stdio;
+    import std.format: format;
 
     auto f = new mmrangefile("resources/mmrangefile.test");
 
-    assert(f.front() == 't');
+    assert(f.front() == 't', format("Expected first character to be %s, got %s", "t", f.front()));
 
     for (auto i = 0; i < 5; i++) //5 to include newline
     {
         f.popFront();
     }
 
-    assert(f.current_location.column_no == 0 );
-    assert(f.current_location.line_no == 1 );
+    assert ( f.iterator == 5 );
+
+    assert(f.current_location.column_no == 0, format("Expected column number to be %s, got %s", 0, f.current_location.column_no));
+    assert(f.current_location.line_no == 2, format("Expected line number to be %s, got %s", 1, f.current_location.line_no));
 
     string oneHundred;
     foreach (c; f)
