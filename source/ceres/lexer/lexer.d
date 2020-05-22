@@ -378,10 +378,23 @@ template state_template(Range, RangeChar)
                 switch (c)
                 {
                 case '0':
-                    auto next_state = new state_template!(Range, RangeChar).isHexOrOct(f,
-                            this.emission_function);
-                    next_state.buffer_char(c);
-                    return next_state;
+                    if (!this.f.empty)
+                    {
+                        if ( isNumber(this.f.front()) )
+                        {
+                            auto next_state = new state_template!(Range, RangeChar).isHexOrOct(f,
+                                    this.emission_function);
+                            next_state.buffer_char(c);
+                            return next_state;
+                        }
+                        else
+                            auto next_state = new state_template!(Range, RangeChar).start(f,
+                                    this.emission_function);
+                    }
+                    else
+                        auto next_state = new state_template!(Range, RangeChar).start(f,
+                                this.emission_function);
+
                 case '1': .. case '9':
                     auto next_state = new state_template!(Range,
                             RangeChar).isInteger(this.f, this.emission_function);
@@ -631,6 +644,7 @@ template state_template(Range, RangeChar)
     class isHexOrOct : state
     {
         import ceres.lexer.token;
+        import std.format: format;
 
         this(Range f, void delegate(token t) emission_function)
         {
@@ -658,7 +672,8 @@ template state_template(Range, RangeChar)
                 new_state.character_buffer = this.character_buffer.dup();
                 return new_state;
             default:
-                throw new stateException("Invalid digit in hex or octal constant"); //TODO add the character to this error.
+                loc l = this.f.current_location;
+                throw new stateException(format("%s:%s    Invalid digit in hex or octal constant", l.line_no, l.column_no)); //TODO add the character to this error.
             }
         }
     }
