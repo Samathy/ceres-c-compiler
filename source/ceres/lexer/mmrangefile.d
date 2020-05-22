@@ -13,6 +13,8 @@ import std.range;
 
 import ceres.lexer.location : loc;
 
+import ceres.lexer.utils: isNewLine;
+
 version (unittest)
 {
     import blerp.blerp;
@@ -47,7 +49,7 @@ class mmrangefile
 
     @property bool empty()
     {
-        return (this.iterator >= this.f.length);
+        return (this.iterator >= this.length());
     }
 
     char front()
@@ -62,32 +64,22 @@ class mmrangefile
 
     void popFront()
     {
+        assert( this.iterator+1 <= this.length() );
+
         this.iterator++;
 
-        if ( isNewLine(this.f[this.iterator-1]) )
+        if (isNewLine(this.f[this.iterator - 1]))
         {
             this.current_location.line_no += 1;
             this.current_location.column_no = 0;
         }
         else
             this.current_location.column_no += 1;
-
     }
 
     size_t length()
     {
         return this.f.length();
-    }
-
-    private bool isNewLine(char character)
-    {
-        import std.uni: lineSep, paraSep, nelSep;
-        if (character == lineSep || character == paraSep || character == nelSep)
-            return true;
-        else if ( character == '\n' || character == '\r' )
-            return true;
-        else 
-            return false;
     }
 
     string filename;
