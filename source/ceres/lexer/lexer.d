@@ -42,6 +42,14 @@ unittest
 
 }
 
+
+import ceres.lexer.location: loc;
+@property loc current_location(T)(scope T[] a) @safe pure nothrow @nogc if (is(T == char))
+{
+    loc l;
+    return l;
+}
+
 /**
   *
   */
@@ -670,7 +678,10 @@ template state_template(Range, RangeChar)
 
         override state opCall()
         {
-            auto c = this.f.front();
+            loc l  = this.f.current_location;
+            l.column_no -= this.character_buffer.length;
+
+            RangeChar c;
 
             while (!f.empty())
             {
@@ -693,7 +704,6 @@ template state_template(Range, RangeChar)
                 this.f.popFront();
             }
 
-            loc l;
             this.emit(new octLiteral(l, cast(immutable RangeChar[]) this.character_buffer));
 
             return new state_template!(Range, RangeChar).start(this.f,
@@ -719,8 +729,10 @@ template state_template(Range, RangeChar)
 
         override state opCall()
         {
+            loc l  = this.f.current_location;
+            l.column_no -= this.character_buffer.length;
 
-            RangeChar c = this.f.front();
+            RangeChar c;
 
             while (!f.empty())
             {
@@ -742,7 +754,6 @@ template state_template(Range, RangeChar)
                 this.f.popFront();
             }
 
-            loc l;
             this.emit(new integerLiteral(l,
                     cast(immutable RangeChar[]) this.character_buffer));
 
@@ -759,6 +770,7 @@ template state_template(Range, RangeChar)
         import std.algorithm : canFind;
         import ceres.lexer.token : rparen, rcurly, rsquare, token;
         import ceres.lexer.location : loc;
+        import std.conv: to;
 
         this(Range f, void delegate(token t) emission_function)
         {
@@ -773,7 +785,8 @@ template state_template(Range, RangeChar)
         }
         body
         {
-            loc l;
+            loc l = this.f.current_location;
+            l.column_no -= this.character_buffer.length;
 
             switch (this.character_buffer)
             {
@@ -787,7 +800,7 @@ template state_template(Range, RangeChar)
                 this.emit(new rsquare(l, cast(immutable RangeChar[]) this.character_buffer));
                 break;
             default:
-                throw new stateException("Unknown brace type : " ~ this.character_buffer[0]); //Please remove this.
+                throw new stateException("Unknown brace type : " ~ to!string(this.character_buffer)); //Please remove this.
             }
 
             //We already have our char in the buffer, so should be all okay!
@@ -803,6 +816,7 @@ template state_template(Range, RangeChar)
     class isLparen : state
     {
         import std.algorithm : canFind;
+        import std.conv:to;
         import ceres.lexer.token : lparen, lcurly, lsquare, token;
         import ceres.lexer.location : loc;
 
@@ -819,7 +833,8 @@ template state_template(Range, RangeChar)
         }
         body
         {
-            loc l;
+            loc l = this.f.current_location;
+            l.column_no -= this.character_buffer.length;
 
             switch (this.character_buffer)
             {
@@ -833,7 +848,7 @@ template state_template(Range, RangeChar)
                 this.emit(new lsquare(l, cast(immutable RangeChar[]) this.character_buffer));
                 break;
             default:
-                throw new stateException("Unknown brace type : " ~ this.character_buffer[0]); //Please remove this.
+                throw new stateException("Unknown brace type : " ~ to!string(this.character_buffer)); //Please remove this.
             }
 
             //We already have our char in the buffer, so should be all okay!
@@ -863,7 +878,8 @@ template state_template(Range, RangeChar)
         }
         body
         {
-            loc l;
+            loc l = this.f.current_location;
+            l.column_no -= this.character_buffer.length;
 
             switch (this.character_buffer[0])
             {
@@ -937,8 +953,10 @@ template state_template(Range, RangeChar)
         }
         body
         {
-            loc l;
-            auto c = this.f.front();
+            loc l = this.f.current_location;
+            l.column_no -= this.character_buffer.length;
+
+            RangeChar c = this.f.front();
             this.f.popFront();
             if (this.character_buffer[0] == c)
             {
