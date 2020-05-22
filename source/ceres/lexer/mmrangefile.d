@@ -13,6 +13,17 @@ import std.range;
 
 import ceres.lexer.location: loc;
 
+version (unittest)
+{
+    import blerp.blerp;
+    static this()
+    {
+        runTests!(__MODULE__);
+    }
+}
+
+import blerp.blerp: BlerpTest;
+
 /** 
   * An input range backed by a memory-mapped file
   * This is the primary input to the lexer.
@@ -91,7 +102,7 @@ class mmrangefile
     }
 }
 
-unittest
+@BlerpTest("test_mmrangefile") unittest
 {
     import std.stdio;
 
@@ -103,6 +114,9 @@ unittest
     {
         f.popFront();
     }
+
+    assert(f.current_location.column_no == 0 );
+    assert(f.current_location.line_no == 1 );
 
     string oneHundred;
     foreach (c; f)

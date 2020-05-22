@@ -1,17 +1,19 @@
 {
-	"description": "A C lexer",
-	"license": "MIT",
 	"authors": [
 		"samathy"
 	],
+	"configurations": [
+		{
+			"mainSourceFile": "source/test_main.d",
+			"name": "integrationTest",
+			"targetType": "executable"
+		}
+	],
 	"copyright": "Copyright © 2019, samathy",
-	"name": "c_lex",
-    "configurations": [
-        {
-        "name":"integrationTest",
-        "mainSourceFile":"source/test_main.d",
-        "targetType": "executable"
-        }
-    ]
-
+	"dependencies": {
+		"blerp": "~>0.1.0"
+	},
+	"description": "A C lexer",
+	"license": "MIT",
+	"name": "c_lex"
 }

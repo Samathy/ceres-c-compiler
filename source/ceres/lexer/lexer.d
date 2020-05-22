@@ -15,7 +15,17 @@ version (unittest)
 
     import ceres.lexer.lexer_test_utils : tcase, testLexer, testEmissionState,
         testIntermediateState, testKeywordEmissionState;
+
+    import blerp.blerp;
+    static this()
+    {
+        import core.runtime;
+        Runtime.moduleUnitTester = { return true; };
+        runTests!(__MODULE__); 
+    }
 }
+
+import blerp.blerp: BlerpTest;
 
 import std.range.primitives : popFront, empty, isInputRange;
 import std.traits : isSomeChar;
@@ -33,7 +43,7 @@ import std.traits : isSomeChar;
     return a[0];
 }
 
-unittest
+@BlerpTest("test_char[]_front()") unittest
 {
     char[] c = cast(char[]) "hello";
 
@@ -43,11 +53,23 @@ unittest
 }
 
 
+/** 
+  * mmrangefile has a current_location method returning a loc. We use char
+  * buffers for tests, which need to also have that method.
+  *
+  */
 import ceres.lexer.location: loc;
 @property loc current_location(T)(scope T[] a) @safe pure nothrow @nogc if (is(T == char))
 {
     loc l;
     return l;
+}
+
+@BlerpTest("test_char_buffer_has_current_location") unittest
+{
+    char[] c = ['a', 'b', 'c', 'd', 'e'];
+
+    assert (is(typeof(c.current_location()) == loc));
 }
 
 /**
@@ -141,7 +163,7 @@ template lexer(Range, RangeChar)
     }
 }
 
-unittest
+@BlerpTest("test_Lexer") unittest
 {
     tcase caseOne = {input: cast(char[]) "if", emitted_token_count: 1};
     tcase caseTwo = {input: cast(char[]) "10 0xDEADBEEF", emitted_token_count: 2};
@@ -971,22 +993,13 @@ template state_template(Range, RangeChar)
 
 }
 
-unittest
+@BlerpTest("test_start_state") unittest
 {
 
-    tcase caseOne = {
-        cast(char[]) "i", cast(char[]) "isIf", false, false, "", cast(char[]) ""
-        };
-    tcase caseTwo = {
-        cast(char[]) "if (foo", cast(char[]) "isIf", false, false, "", cast(char[]) ""
-        };
-    tcase caseThree = {
-        cast(char[]) "ifonlyIcould ", cast(char[]) "isIf", false, false, "", cast(char[]) ""
-        };
-    tcase caseFour = {
-        cast(char[]) "0xDEADBEEF", cast(char[]) "isHexOrOct", false,
-            false, "", cast(char[]) ""
-        };
+    tcase caseOne = { input:cast(char[]) "i", char_buffer_expected:cast(char[]) "isIf" };
+    tcase caseTwo = { input: cast(char[]) "if (foo", char_buffer_expected: cast(char[]) "isIf" };
+    tcase caseThree = { input: cast(char[]) "ifonlyIcould ", char_buffer_expected: cast(char[]) "isIf"};
+    tcase caseFour = { input: cast(char[]) "0xDEADBEEF", cast(char[]) "isHexOrOct", false, false, "", cast(char[]) "" };
     tcase caseFive = {
         cast(char[]) "0123456", cast(char[]) "isHexOrOct", false, false, "", cast(char[]) ""
         };
@@ -1004,7 +1017,7 @@ unittest
     testIntermediateState!(state_template!(char[], char).start, char[], char)(cases);
 }
 
-unittest
+@BlerpTest("test_isIf") unittest
 {
     tcase caseOne = {
         cast(char[]) "f ", cast(char[]) "if", false, true, "start", cast(char[]) "i"
@@ -1024,7 +1037,7 @@ unittest
     testKeywordEmissionState!(state_template!(char[], char).isIf, char[], char)(cases);
 }
 
-unittest
+@BlerpTest("test_isIdentifier") unittest
 {
     import ceres.lexer.token : classInfoNameToPlainName;
 
@@ -1039,9 +1052,8 @@ unittest
     testEmissionState!(state_template!(char[], char).isIdentifier, char[], char)(cases);
 }
 
-unittest
+@BlerpTest("test_isHexOrOct") unittest
 {
-    writeln("Running test cases for isHexOrOct");
     import ceres.lexer.token : classInfoNameToPlainName; //ClassInfo.name is the same form as TypeInfo.name
 
     tcase caseOne = {cast(char[]) "x12", cast(char[]) "isHex", false, true};
@@ -1054,10 +1066,8 @@ unittest
 
 }
 
-unittest
+@BlerpTest("test_isHex") unittest
 {
-    writeln("Running test cases for isHex");
-
     //The first 2 characters would have already been eaten by isOct - so we might not need
     // to check for 0x.
     tcase case1 = {cast(char[]) "56FA", cast(char[]) "56FA", false, true};
@@ -1074,10 +1084,8 @@ unittest
     testEmissionState!(state_template!(char[], char).isHex, char[], char)(cases);
 }
 
-unittest
+@BlerpTest("test_isOct") unittest
 {
-    writeln("Running test cases for isOct");
-
     tcase case1 = {cast(char[]) "1236654", cast(char[]) "1236654", false, true};
     tcase case2 = {cast(char[]) "00665  ", cast(char[]) "00665", false, true};
     tcase case3 = {cast(char[]) "0;0665  ", cast(char[]) "0", false, true};
@@ -1090,10 +1098,8 @@ unittest
     testEmissionState!(state_template!(char[], char).isOct, char[], char)(cases);
 }
 
-unittest
+@BlerpTest("test_isInteger") unittest
 {
-    writeln("Running test cases for isInteger");
-
     tcase case1 = {cast(char[]) "123455", cast(char[]) "123455", false, true};
     tcase case2 = {cast(char[]) "9283  ", cast(char[]) "9283", false, true};
     tcase case3 = {cast(char[]) "92;83  ", cast(char[]) "92", false, true};
@@ -1105,17 +1111,15 @@ unittest
     testEmissionState!(state_template!(char[], char).isInteger, char[], char)(cases);
 }
 
-unittest
+@BlerpTest("test_isRparen") unittest
 {
-    writeln("Running test cases for isRparen");
-
     tcase caseOne = {
         input: cast(char[]) ")", char_buffer_expected: cast(char[]) ")", throws: false, emits: true,
         emits_class: "rparen", emitted_token_count: 1, prefilled_char_buffer: cast(char[]) ")"};
-        tcase caseTwo = {
+    tcase caseTwo = {
             input: cast(char[]) "}", char_buffer_expected: cast(char[]) "}", throws: false, emits: true, emits_class: "rparen",
             emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "}"};
-            tcase caseThree = {
+    tcase caseThree = {
                 input: cast(char[]) "]", char_buffer_expected: cast(char[]) "]",
                 throws: false, emits: true, emits_class: "rparen",
                 emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "]"
@@ -1128,10 +1132,8 @@ unittest
     testEmissionState!(state_template!(char[], char).isRparen, char[], char)(cases);
 }
 
-unittest
+@BlerpTest("test_isLparen") unittest
 {
-    writeln("Running test cases for is isLparen");
-
     tcase caseOne = {
         input: cast(char[]) "(", char_buffer_expected: cast(char[]) "(", throws: false, emits: true,
         emits_class: "lparen", emitted_token_count: 1, prefilled_char_buffer: cast(char[]) "("
@@ -1153,10 +1155,8 @@ unittest
     testEmissionState!(state_template!(char[], char).isLparen, char[], char)(cases);
 }
 
-unittest
+@BlerpTest("test_isOct") unittest
 {
-    writeln("Running test cases for isOperator");
-
     tcase caseOne = {
         input: cast(char[]) " 10", throws: false, emits: true, emits_class: "operator",
         prefilled_char_buffer: cast(char[]) "+", char_buffer_expected: cast(char[]) "+"
