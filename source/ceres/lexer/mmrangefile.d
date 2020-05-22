@@ -63,7 +63,7 @@ class mmrangefile
     {
         this.iterator++;
 
-        if ( isNewLine(this.f[this.iterator]) )
+        if ( isNewLine(this.f[this.iterator-1]) )
         {
             this.current_location.line_no += 1;
             this.current_location.column_no = 0;
