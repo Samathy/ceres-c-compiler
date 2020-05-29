@@ -385,7 +385,7 @@ template state_template(Range, RangeChar)
                 case '0':
                     if (!this.f.empty)
                     {
-                        if ( isNumber(this.f.front()) )
+                        if ( isNumber(this.f.front()) || this.f.front() == 'x')
                         {
                             auto next_state = new state_template!(Range, RangeChar).isHexOrOct(f,
                                     this.emission_function);
