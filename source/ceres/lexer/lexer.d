@@ -680,37 +680,41 @@ template state_template(Range, RangeChar)
     {
         import ceres.lexer.token;
         import std.format: format;
-
+        
         this(Range f, void delegate(token t) emission_function)
         {
             super(f, emission_function);
         }
 
         override state opCall()
-        {
-            RangeChar c = this.f.front();
-
-            switch (c)
+            out //I did have multiple popFront calls in here which was breaking things.
             {
-            case 'x':
-                this.f.popFront();
-                this.buffer_char(c);
-                auto new_state = new state_template!(Range, RangeChar).isHex(this.f,
-                        this.emission_function);
-                new_state.character_buffer = this.character_buffer.dup();
-                return new_state;
-            case '0': .. case '7':
-                this.f.popFront();
-                this.buffer_char(c);
-                auto new_state = new state_template!(Range, RangeChar).isOct(this.f,
-                        this.emission_function);
-                new_state.character_buffer = this.character_buffer.dup();
-                return new_state;
-            default:
-                loc l = this.f.current_location;
-                throw new stateException(format("%s:%s    Invalid digit in hex or octal constant", l.line_no, l.column_no)); //TODO add the character to this error.
+                assert (!this.f.empty(), "isHexOrOct leaves input exhausted");
             }
-        }
+            do{
+                RangeChar c = this.f.front();
+                this.f.popFront();
+
+                switch (c)
+                {
+                case 'x':
+                    this.buffer_char(c);
+                    auto new_state = new state_template!(Range, RangeChar).isHex(this.f,
+                            this.emission_function);
+                    new_state.character_buffer = this.character_buffer.dup();
+                    return new_state;
+                case '0': .. case '7':
+                    this.buffer_char(c);
+                    auto new_state = new state_template!(Range, RangeChar).isOct(this.f,
+                            this.emission_function);
+                    new_state.character_buffer = this.character_buffer.dup();
+
+                    return new_state;
+                default:
+                    loc l = this.f.current_location;
+                    throw new stateException(format("%s:%s    Invalid digit in hex or octal constant", l.line_no, l.column_no)); //TODO add the character to this error.
+                }
+            }
     }
 
     /**
