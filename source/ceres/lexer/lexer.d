@@ -370,7 +370,7 @@ template state_template(Range, RangeChar)
             //If its a normal character
             if (isAlpha(c))
             {
-                //this.f.popFront();
+                this.f.popFront();
                 auto next_state = new state_template!(Range, RangeChar).isIdentifierOrKeyword(f,
                         this.emission_function);
                 next_state.buffer_char(c); //buffer it
@@ -602,7 +602,7 @@ template state_template(Range, RangeChar)
         import std.conv: to;
         import std.string: toUpper;
         import std.format: format;
-        import ceres.lexer.token: getKeywords, keyword, token ;
+        import ceres.lexer.token: getKeywords, keyword, token, ID;
         import ceres.lexer.location;
 
         this(Range f, void delegate(token t) emission_function)
