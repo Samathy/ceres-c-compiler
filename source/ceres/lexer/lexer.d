@@ -629,7 +629,7 @@ template state_template(Range, RangeChar)
                 }
                 else
                 {
-                    throw new stateException("Unexpected character");
+                    throw new stateException(format("%s:%s    Unexpected Character", l.line_no, l.column_no)); //TODO add the character to this error.
                 }
             }
 
@@ -772,6 +772,7 @@ template state_template(Range, RangeChar)
     {
         import std.uni : isNumber, isWhite, isPunctuation;
         import std.algorithm : canFind;
+        import std.format: format;
         import ceres.lexer.token : octLiteral, token;
         import ceres.lexer.location;
 
@@ -802,12 +803,11 @@ template state_template(Range, RangeChar)
                 }
                 else
                 {
-                    throw new stateException("Unexpected character. Invalid Hex constant");
+                    throw new stateException(format("%s:%s   Unexpected character in Octal constant: %s", l.line_no, l.column_no, this.character_buffer~c));
                 }
 
                 this.f.popFront();
             }
-
             this.emit(new octLiteral(l, cast(immutable RangeChar[]) this.character_buffer));
 
             return new state_template!(Range, RangeChar).start(this.f,
@@ -823,6 +823,7 @@ template state_template(Range, RangeChar)
     {
         import std.uni : isNumber, isWhite, isPunctuation;
         import std.stdio;
+        import std.format: format;
         import ceres.lexer.token : integerLiteral, token;
         import ceres.lexer.location;
 
@@ -851,8 +852,7 @@ template state_template(Range, RangeChar)
                 }
                 else
                 {
-                    throw new stateException(
-                            "Unexpected character. Badly formed integer constant");
+                    throw new stateException(format("%s:%s   Badly Formed Integer Constant", l.line_no, l.column_no)); //TODO add the character to this error.
                 }
 
                 this.f.popFront();

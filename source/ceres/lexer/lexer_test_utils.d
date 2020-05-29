@@ -155,7 +155,7 @@ version (unittest)
                 }
                 catch (Exception e)
                 {
-                    assert(testcase.throws, "Testcase threw: " ~ e.msg);
+                    assert(testcase.throws, format("Test case %s threw: %s", i, e.msg));
                 }
 
                 if (!testcase.throws)
@@ -181,10 +181,11 @@ version (unittest)
         bool testLexer(tcase[] cases)
         {
             import std.algorithm : equal;
+            import std.format:format;
 
             import ceres.lexer.token : classInfoNameToPlainName, token;
 
-            foreach (testcase; cases)
+            foreach (size_t i, testcase; cases)
             {
                 auto L = new lexer!(Range, RangeChar)(testcase.input);
 
@@ -194,13 +195,13 @@ version (unittest)
                 }
                 catch (Exception e)
                 {
-                    assert(testcase.throws, "Lexer testcase threw: " ~ e.msg);
+                    assert(testcase.throws, format("Test case %s threw: %s", i, e.msg));
                 }
 
                 if (!testcase.throws)
                 {
                     assert(L.get_token_list().length() == testcase.emitted_token_count,
-                            "Emitted token count is not equal the the expected count");
+                            format("Test case %s should have emitted %s tokens, actually emitted %s tokens: %s", i, testcase.emitted_token_count, L.get_token_list().length(), L.get_token_list()));
                 }
 
                 //TODO add assert testing the emitted token list is equal to the expected one.
