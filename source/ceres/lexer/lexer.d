@@ -214,6 +214,21 @@ class token_list
         return this.list.length - this.iterator;
     }
 
+    token[] toArray()
+    {
+        return this.list;
+    }
+
+    override string toString()
+    {
+        string l;
+        foreach(t; this.list)
+        {
+            l~= " "~t.toString();
+        }
+        return l;
+    }
+
     private
     {
         token[] list;
