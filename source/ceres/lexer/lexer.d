@@ -348,28 +348,16 @@ template state_template(Range, RangeChar)
       */
         override state opCall()
         {
-
             RangeChar c = this.f.front(); //View character
 
             //If its a normal character
             if (isAlpha(c))
             {
-                switch (c) //Check for the first character of each keyword.
-                {
-                    //TODO Can we generate this switch statement from a list of keywords?
-                case 'i':
-                    this.f.popFront(); //Consume character
-                    auto next_state = new state_template!(Range, RangeChar).isIf(f,
-                            this.emission_function);
-                    next_state.buffer_char(c);
-                    return next_state;
-                default:
-                    auto next_state = new state_template!(Range, RangeChar).isIdentifier(f,
-                            this.emission_function);
-                    next_state.buffer_char(c); //buffer it
-                    return next_state;
-                }
-
+                //this.f.popFront();
+                auto next_state = new state_template!(Range, RangeChar).isIdentifierOrKeyword(f,
+                        this.emission_function);
+                next_state.buffer_char(c); //buffer it
+                return next_state;
             }
             else if (isNumber(c)) //If number
             {
@@ -557,8 +545,8 @@ template state_template(Range, RangeChar)
                 }
                 else
                 {
-                    this.f.popFront();
-                    auto new_state = new state_template!(Range, RangeChar).isIdentifier(this.f,
+                    //this.f.popFront();
+                    auto new_state = new state_template!(Range, RangeChar).isIdentifierOrKeyword(this.f,
                             this.emission_function);
                     new_state.character_buffer = this.character_buffer.dup();
                     return new_state;
@@ -569,7 +557,7 @@ template state_template(Range, RangeChar)
             else if (isAlpha(c))
             {
                 this.f.popFront();
-                auto new_state = new state_template!(Range, RangeChar).isIdentifier(this.f,
+                auto new_state = new state_template!(Range, RangeChar).isIdentifierOrKeyword(this.f,
                         this.emission_function);
                 new_state.character_buffer = this.character_buffer.dup();
                 return new_state;
@@ -586,10 +574,13 @@ template state_template(Range, RangeChar)
     * Potential identifier ( variable name etc )
     *
     */
-    class isIdentifier : state
+    class isIdentifierOrKeyword : state
     {
         import std.uni : isAlpha, isWhite, isPunctuation;
-        import ceres.lexer.token;
+        import std.conv: to;
+        import std.string: toUpper;
+        import std.format: format;
+        import ceres.lexer.token: getKeywords, keyword, token ;
         import ceres.lexer.location;
 
         this(Range f, void delegate(token t) emission_function)
@@ -599,10 +590,11 @@ template state_template(Range, RangeChar)
 
         override state opCall()
         {
+
             loc l; 
             auto c = this.f.front();
             /* Consume characters until we see one which 
-       cant be part of an identifier */
+               cant be part of an identifier */
             while (!f.empty())
             {
                 c = this.f.front();
@@ -616,9 +608,19 @@ template state_template(Range, RangeChar)
                 }
                 else if (isWhite(c))
                 {
-                    //Don't popfront, let the start state handle that whitespace
-                    this.emit(new ID(l, cast(immutable char[]) this.character_buffer));
-                    break;
+                    if(isKeyword(this.character_buffer))
+                    {
+                        //Don't popfront, let the start state handle that whitespace
+                        keyword k = getKeywords[this.character_buffer.toUpper()](l);
+                        this.emit(k);
+                        break;
+                    }
+                    else
+                    {
+                        //Don't popfront, let the start state handle that whitespace
+                        this.emit(new ID(l, cast(immutable char[]) this.character_buffer));
+                        break;
+                    }
                 }
                 else if (isPunctuation(c))
                 {
@@ -633,6 +635,17 @@ template state_template(Range, RangeChar)
 
             return new state_template!(Range, RangeChar).start(this.f,
                     this.emission_function);
+
+        }
+
+        bool isKeyword(char[] word)
+        {
+            if ( to!string(word.toUpper()) in getKeywords())
+            {
+                return true;
+            }
+
+            return false;
 
         }
 

@@ -12,6 +12,7 @@ module ceres.lexer.token;
 import std.string : toUpper, lastIndexOf, format;
 
 import ceres.lexer.location : loc;
+import ceres.lexer.utils : getTypes;
 
 /**
   * We need to rename some of these tokens so they are actually the tokens of the C language
@@ -44,6 +45,16 @@ unittest
     assert(classInfoNameToPlainName("C_LEX.TOKEN.TOKEN") == "TOKEN");
 }
 
+/**
+  * Returns a map of keyword class factories to a string of their name.
+  * This is a zero cost function, because 'keywords' is generated at compile time.
+  */
+keyword function(loc...)[string] getKeywords()
+{
+    enum keyword function(loc...)[string] keywords = getTypes!(keyword, __MODULE__, 1, loc);
+    return keywords;
+}
+
 /** 
   * Token superclass
   */
@@ -64,7 +75,8 @@ class token
       */
     override string toString()
     {
-        return format("%s:%s    %s", this.location.line_no, this.location.column_no, this.type_string);
+        return format("%s:%s    %s", this.location.line_no,
+                this.location.column_no, this.type_string);
     }
 
     private
@@ -472,7 +484,8 @@ class ID : token
 
     override string toString()
     {
-        return format("%s:%s    %s (%s)",this.location.line_no, this.location.column_no, this.type_string, this.token_string);
+        return format("%s:%s    %s (%s)", this.location.line_no,
+                this.location.column_no, this.type_string, this.token_string);
     }
 
     private
@@ -1080,7 +1093,6 @@ class semi : token
         super(location);
     }
 }
-
 
 class stringLiteral : token
 {
