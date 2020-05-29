@@ -1113,9 +1113,9 @@ template state_template(Range, RangeChar)
 
     import std.typecons: tuple, Tuple;
 
-    tcase caseOne = { input:cast(char[]) "i", returns_class: "isIf" };
-    tcase caseTwo = { input: cast(char[]) "if (foo", returns_class: "isIf" };
-    tcase caseThree = { input: cast(char[]) "ifonlyIcould ", returns_class:"isIf"};
+    tcase caseOne = { input:cast(char[]) "i", returns_class: "isIdentifierOrKeyword" };
+    tcase caseTwo = { input: cast(char[]) "if (foo", returns_class: "isIdentifierOrKeyword" };
+    tcase caseThree = { input: cast(char[]) "ifonlyIcould ", returns_class:"isIdentifierOrKeyword"};
     tcase caseFour = { input: cast(char[]) "0xDEADBEEF", returns_class: "isHexOrOct"};
     tcase caseFive = { input: cast(char[]) "0123456", returns_class: "isHexOrOct"};
     tcase caseSix = { input: cast(char[]) "102937", returns_class: "isInteger" };
@@ -1167,7 +1167,7 @@ template state_template(Range, RangeChar)
 
     tcase[] cases = [caseOne, caseTwo, caseThree];
 
-    testEmissionState!(state_template!(char[], char).isIdentifier, char[], char)(cases);
+    testEmissionState!(state_template!(char[], char).isIdentifierOrKeyword, char[], char)(cases);
 }
 
 @BlerpTest("test_isHexOrOct") unittest
