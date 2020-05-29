@@ -393,13 +393,18 @@ template state_template(Range, RangeChar)
                             return next_state;
                         }
                         else
+                        {
                             auto next_state = new state_template!(Range, RangeChar).start(f,
                                     this.emission_function);
+                            return next_state;
+                        }
                     }
                     else
+                    {
                         auto next_state = new state_template!(Range, RangeChar).start(f,
                                 this.emission_function);
-
+                        return next_state;
+                    }
                 case '1': .. case '9':
                     auto next_state = new state_template!(Range,
                             RangeChar).isInteger(this.f, this.emission_function);
