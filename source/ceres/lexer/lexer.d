@@ -163,16 +163,18 @@ template lexer(Range, RangeChar)
     }
 }
 
-@BlerpTest("test_Lexer") unittest
+@BlerpTest("test_lexer") unittest
 {
-    tcase caseOne = {input: cast(char[]) "if", emitted_token_count: 1};
+    tcase caseOne = {input: cast(char[]) "if ", emitted_token_count: 1, emits: true};
     tcase caseTwo = {input: cast(char[]) "10 0xDEADBEEF", emitted_token_count: 2};
     tcase caseThree = {
-        input: cast(char[]) "001919, if, 0x19 ", emitted_token_count: 2};
+        input: cast(char[]) "001717 if 0x19 ", emitted_token_count: 3};
     tcase caseFour = {
         input: cast(char[]) "0x19 if 0x1010 10 033", emitted_token_count: 5};
+    tcase caseFive = {
+        input: cast(char[]) "int main() { char wible; unsigned int i = 0x100; float f = 0; }", emitted_token_count: 16};
 
-    tcase[2] testcases = [caseOne, caseTwo];
+    tcase[5] testcases = [caseOne, caseTwo, caseThree, caseFour, caseFive];
 
     testLexer!(char[], char)(testcases);
 }
@@ -1207,11 +1209,12 @@ template state_template(Range, RangeChar)
     tcase case1 = {input:cast(char[]) "1236654", char_buffer_expected:cast(char[]) "1236654", emits: true,emits_class: "octLiteral"};
     tcase case2 = {input:cast(char[]) "00665  ", char_buffer_expected:cast(char[]) "00665", emits: true, emits_class: "octLiteral"};
     tcase case3 = {input:cast(char[]) "0;0665  ", char_buffer_expected:cast(char[]) "0", emits: true, emits_class: "octLiteral"};
+    tcase test_commas_in_input = {input:cast(char[]) "005543,", char_buffer_expected:cast(char[]) "005543", emits: true, emits_class: "octLiteral"} ;
     tcase case4 = {input:cast(char[]) "0x10", char_buffer_expected:cast(char[]) "0", throws:true };
     tcase case5 = {input:cast(char[]) "5742227", char_buffer_expected:cast(char[]) "02227", throws: true};
     tcase case6 = {input:cast(char[]) "0689993", char_buffer_expected:cast(char[]) "0689993", throws: true} ;
 
-    tcase[] cases = [case1, case2, case3, case4, case5, case6];
+    tcase[] cases = [case1, case2, case3, case4, case5, case6, test_commas_in_input];
 
     testEmissionState!(state_template!(char[], char).isOct, char[], char)(cases);
 }
