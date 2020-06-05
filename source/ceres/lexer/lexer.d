@@ -174,6 +174,10 @@ template lexer(Range, RangeChar)
                     string label;
                     if ( isWhite(name_and_label[1][0]))
                         label = "\\\\w";
+                    else if ( name_and_label[1][0] == '\"' )
+                        label = "\\\"";
+                    else if ( name_and_label[1][0] == '\'')
+                        label = "\\\'";
                     else
                         label = name_and_label[1];
 
