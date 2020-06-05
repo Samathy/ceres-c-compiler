@@ -156,6 +156,10 @@ template lexer(Range, RangeChar)
             return this.list;
         }
 
+        /** Generates a graph of the states visiting in the lexing process in
+         * dot format.  This function is really only useful when debugging
+         * very small, failing lexing examples.  the graphviz graph for
+         * programs even 10 lines long gets quite hard to follow. */
         string get_state_graph_dot()
         {
             import std.format: format;
