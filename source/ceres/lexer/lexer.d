@@ -92,6 +92,7 @@ template lexer(Range, RangeChar)
     {
         import std.conv : to;
         import std.uni : isAlpha;
+        import std.range: back;
 
         import ceres.lexer.mmrangefile;
         import ceres.lexer.token;
@@ -114,10 +115,19 @@ template lexer(Range, RangeChar)
                 list.add(t);
             });
 
+            int token_length = 0;
+
             while (!this.f.empty())
             {
                 try
                 {
+                    if ( this.list.length > token_length)
+                    {
+                        this.state_graph[].back()[2] = "true"; // If the token list is now longer, the last state emitted a token.
+                        token_length++;
+                    }
+                    this.state_graph ~= [current_state.classinfo.name, to!string(this.f.front()), "false"];
+
                     current_state = current_state();
                     this.f = current_state.f;
                 }
@@ -146,8 +156,47 @@ template lexer(Range, RangeChar)
             return this.list;
         }
 
+        string get_state_graph_dot()
+        {
+            import std.format: format;
+            import std.uni: isWhite;
+            import ceres.lexer.token: classInfoNameToPlainName;
+
+            string output = "digraph lexer {\n";
+
+            foreach(size_t i, name_and_label; this.state_graph)
+            {
+                if (i < this.state_graph.length-1)
+                {
+                    string name = classInfoNameToPlainName(name_and_label[0]);
+
+                    /** Replace whitespace labels with \w */
+                    string label;
+                    if ( isWhite(name_and_label[1][0]))
+                        label = "\\\\w";
+                    else
+                        label = name_and_label[1];
+
+                    string next_name;
+                    next_name = classInfoNameToPlainName(this.state_graph[i+1][0]);
+                    
+                    /** If the state emitted a token, make it a dashed line */
+                    if ( name_and_label[2] == "true")
+                        output ~= format("    %s [style=dashed]\n", name);
+
+                    output ~= format("    %s -> %s [label=\"%s\"];\n", name, next_name, label);
+                }
+            }
+
+            output ~= "}";
+
+            return output;
+        }
+
         private
         {
+            string[][] state_graph;
+
             Range f; // Input range
 
             token_list list; // List of emitted tokens

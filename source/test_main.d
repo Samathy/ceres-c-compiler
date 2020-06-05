@@ -1,6 +1,6 @@
 import ceres.lexer.lexer : lexer, stateException;
 import ceres.lexer.mmrangefile : mmrangefile;
-import std.stdio : writeln;
+import std.stdio : writeln, File;
 
 int main()
 {
@@ -19,6 +19,10 @@ int main()
     }
 
     writeln(l.get_token_list());
+
+    auto f = File("lexer_state_graph.dot", "w");
+
+    f.writeln(l.get_state_graph_dot());
 
     return 0;
 
