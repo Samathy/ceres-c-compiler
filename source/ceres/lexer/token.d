@@ -46,14 +46,9 @@ unittest
 }
 
 /**
-  * Returns a map of keyword class factories to a string of their name.
-  * This is a zero cost function, because 'keywords' is generated at compile time.
+  * A compile-time map of keyword class factories to a string of their name.
   */
-keyword function(loc...)[string] getKeywords()
-{
-    enum keyword function(loc...)[string] keywords = getTypes!(keyword, __MODULE__, 1, loc);
-    return keywords;
-}
+static enum keyword function(loc...)[string] keywords = getTypes!(keyword, __MODULE__, 1, loc);
 
 /** 
   * Token superclass

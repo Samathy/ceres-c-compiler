@@ -659,7 +659,7 @@ template state_template(Range, RangeChar)
         import std.conv: to;
         import std.string: toUpper;
         import std.format: format;
-        import ceres.lexer.token: getKeywords, keyword, token, ID;
+        import ceres.lexer.token: keywords, keyword, token, ID;
         import ceres.lexer.location;
 
         this(Range f, void delegate(token t) emission_function)
@@ -690,7 +690,7 @@ template state_template(Range, RangeChar)
                     if(isKeyword(this.character_buffer))
                     {
                         //Don't popfront, let the start state handle that whitespace
-                        keyword k = getKeywords[this.character_buffer.toUpper()](l);
+                        keyword k = keywords[this.character_buffer.toUpper()](l);
                         this.emit(k);
                         break;
                     }
@@ -719,7 +719,7 @@ template state_template(Range, RangeChar)
 
         bool isKeyword(char[] word)
         {
-            if ( to!string(word.toUpper()) in getKeywords())
+            if ( to!string(word.toUpper()) in keywords)
             {
                 return true;
             }
