@@ -68,8 +68,8 @@ template tree(leaf_type)
                 assert(this.root !is null);
                 assert(this.front_item !is null);
                 assert(this.length - 1 == 0);
-                assert(this.root_item.data == leaf_data);
-                assert(this.front_item.data == leaf_data);
+                assert(this.root_item == leaf_data);
+                assert(this.front_item == leaf_data);
             }
 
             assert(this.root !is null);
@@ -84,7 +84,7 @@ template tree(leaf_type)
                 this.length += 1;
                 return;
             }
-            else if (this.front_item.data == parent.data)
+            else if (this.root_item == parent)
             {
                 this.front_item = new leaf(leaf_data, this.front_item);
                 this.length += 1;
@@ -158,6 +158,16 @@ template tree(leaf_type)
             return this.data == o;
         }
 
+        override bool opEquals(Object o)
+        {
+            return this is o;
+        }
+
+        bool opEquals(size_t o)
+        {
+            return this.toHash() == o;
+        }
+
         void opAssign(leaf_type data)
         {
             this.data = data;
@@ -196,7 +206,7 @@ template tree(leaf_type)
     assert(t.root !is null);
     assert(t.length == 1);
 
-    assert(t.front().data == 10);
+    assert(t.front() == 10);
 }
 
 /** This test tests a contract, which isnt in release code.
@@ -225,6 +235,6 @@ template tree(leaf_type)
     t.add_leaf(10);
     t.add_leaf(20, t.front_item);
 
-    assert(t.front().data == 20);
-    assert(t.root.data == 10);
+    assert(t.front() == 20);
+    assert(t.root == 10);
 }
