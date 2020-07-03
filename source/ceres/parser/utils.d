@@ -137,6 +137,7 @@ template tree(leaf_type)
         }
     }
 
+    /** Leaf of the tree, contains data and information about parents and children */
     class leaf
     {
         this(leaf_type data, leaf parent)
@@ -150,6 +151,16 @@ template tree(leaf_type)
 
             this.parent = parent;
             return;
+        }
+
+        bool opEquals(leaf_type o)
+        {
+            return this.data == o;
+        }
+
+        void opAssign(leaf_type data)
+        {
+            this.data = data;
         }
 
         public
