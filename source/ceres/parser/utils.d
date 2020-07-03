@@ -46,12 +46,10 @@ template tree(leaf_type)
             return "";
         }
 
-        /** TODO Searches for a particular node in the tree
-          */
-        leaf search(leaf to_find)
+        /** TODO Searches for a particular node in the tree */
+        leaf search_by_data(leaf_type to_find)
         {
-            leaf_type l;
-            return new leaf(l, this.front_item);
+            return this.recursive_depth_first_search(this.root, to_find);
         }
 
         /** Add a new leaf to the tree. Optionally specify parent.
@@ -137,6 +135,36 @@ template tree(leaf_type)
             else
                 return this.front_item;
 
+        }
+
+        private leaf recursive_depth_first_search(leaf start, leaf_type to_find)
+        {
+            import std.array : empty;
+
+            if (start == to_find)
+                return start;
+
+            leaf current_leaf = start;
+
+            if (current_leaf.children.empty)
+                throw new TreeException("Could not find leaf");
+
+            foreach (size_t i, child; current_leaf.children)
+            {
+                if (child == to_find)
+                {
+                    return child;
+                }
+
+                try
+                    return this.recursive_depth_first_search(child, to_find);
+                catch (TreeException e)
+                {
+                    throw e;
+                }
+            }
+
+            throw new TreeException("Could not find leaf");
         }
 
         private
@@ -291,4 +319,21 @@ template tree(leaf_type)
     assert(t.root.search_children_by_data(20) == 0);
     assert(t.root.search_children_by_data(30) == 1);
     assert(t.root.search_children_by_data(40) == 2);
+}
+
+@BlerpTest("test_search_for_node") unittest
+{
+    auto t = new tree!(int)();
+    t.add_leaf(10);
+    t.add_leaf(20, t.root);
+    t.add_leaf(30, t.root.children[0]);
+    t.add_leaf(40, t.root.children[0]);
+    t.add_leaf(50, t.root.children[0].children[0]);
+
+    assert(t.search_by_data(40).data == 40);
+    assert(t.search_by_data(40) is t.root.children[0].children[0]);
+
+    assert(t.search_by_data(50).data == 50);
+    assert(t.search_by_data(50) is t.root.children[0].children[0].children[0]);
+
 }
