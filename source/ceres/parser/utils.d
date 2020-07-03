@@ -26,6 +26,14 @@ template tree(leaf_type)
         }
     }
 
+    class LeafException : TreeException
+    {
+        this(string message)
+        {
+            super(message);
+        }
+    }
+
     class tree
     {
         this()
@@ -71,9 +79,12 @@ template tree(leaf_type)
                 assert(this.root_item == leaf_data);
                 assert(this.front_item == leaf_data);
             }
-
-            assert(this.root !is null);
-            assert(this.front_item.data == leaf_data);
+            else if (parent !is null)
+            {
+                assert(this.root !is null);
+                assert(this.front_item == leaf_data);
+                assert(this.front_item.parent.get_child_by_data(leaf_data));
+            }
         }
         do
         {
@@ -86,18 +97,17 @@ template tree(leaf_type)
             }
             else if (this.root_item == parent)
             {
-                this.front_item = new leaf(leaf_data, this.front_item);
+                this.front_item = new leaf(leaf_data, this.root_item);
+                this.root_item.children ~= this.front_item;
                 this.length += 1;
                 return;
             }
             else
             {
-                throw new TreeException("New items must be added to the last leaf only");
-                //TODO We probably will need to be able to add items to leaves which are not the last added item
-                //This might incur an expensive linear search, or, we could opt
-                //to store a list of last-leaves, which would be faster to
-                //search through ( on account of being shorter, and being a
-                //array not a linked list )
+                this.front_item = new leaf(leaf_data, parent);
+                parent.children ~= this.front_item;
+                this.length += 1;
+                return;
             }
         }
 
@@ -144,9 +154,7 @@ template tree(leaf_type)
         {
             this.data = data;
 
-            if (parent !is null)
-                parent.child = this;
-            else
+            if (parent is null)
                 this.is_root = true;
 
             this.parent = parent;
@@ -173,10 +181,28 @@ template tree(leaf_type)
             this.data = data;
         }
 
+        size_t search_children_by_data(leaf_type data)
+        {
+            if (this.children.length == 0)
+                throw new LeafException("No children to search through");
+
+            foreach (size_t i, child; this.children)
+            {
+                if (child == data)
+                    return i;
+            }
+            throw new LeafException("Could not find child node");
+        }
+
+        leaf get_child_by_data(leaf_type data)
+        {
+            return this.children[this.search_children_by_data(data)];
+        }
+
         public
         {
             leaf parent = null;
-            leaf child = null;
+            leaf[] children;
 
             leaf_type data;
 
@@ -186,13 +212,14 @@ template tree(leaf_type)
         invariant
         {
             import std.format : format;
+            import std.array : empty;
 
             assert((is_root && this.parent is null) || (!is_root && this.parent !is null),
                     format("Leaf invariant failure: root is %s, parent is %s",
                         this.is_root, this.parent));
             if (!is_root)
             {
-                assert(this.parent !is null || this.child !is null,
+                assert(this.parent !is null || this.children.empty,
                         "Leaf invariant failure: leaf neither parent, not child is populated");
             }
         }
@@ -237,4 +264,31 @@ template tree(leaf_type)
 
     assert(t.front() == 20);
     assert(t.root == 10);
+}
+
+@BlerpTest("test_get_child_by_data") unittest
+{
+    auto t = new tree!(int)();
+    t.add_leaf(10);
+    t.add_leaf(20, t.root);
+    t.add_leaf(30, t.root);
+    t.add_leaf(40, t.root);
+
+    assert(t.root.children.length == 3, "Number of children longer than expected");
+    assert(t.root.get_child_by_data(40) == t.root.children[$ - 1]);
+}
+
+@BlerpTest("test_search_children") unittest
+{
+    auto t = new tree!(int)();
+    t.add_leaf(10);
+    t.add_leaf(20, t.root);
+    t.add_leaf(30, t.root);
+    t.add_leaf(40, t.root);
+
+    // Relies on opEquals of the leaf
+    assert(t.root.children.length == 3, "Number of children more than expected");
+    assert(t.root.search_children_by_data(20) == 0);
+    assert(t.root.search_children_by_data(30) == 1);
+    assert(t.root.search_children_by_data(40) == 2);
 }
