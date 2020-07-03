@@ -159,7 +159,10 @@ template lexer(Range, RangeChar)
         /** Generates a graph of the states visiting in the lexing process in
          * dot format.  This function is really only useful when debugging
          * very small, failing lexing examples.  the graphviz graph for
-         * programs even 10 lines long gets quite hard to follow. */
+         * programs even 10 lines long gets quite hard to follow.
+         * THIS FUNCTION IS VERY EXPENSIVE. 
+         * Like, takes 1 times longer to run the lexer than without. */
+
         string get_state_graph_dot()
         {
             import std.format: format;
