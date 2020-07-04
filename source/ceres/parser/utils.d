@@ -15,6 +15,21 @@ version (unittest)
     }
 }
 
+/* 
+ * I reckon using a Region allocator might make trees faster to use.
+ * Because they're essentially linked lists, we might benefit from 
+ * having all the leafs in a tree allocated in the same memory region, 
+ * rather than further away leaves being further away in memory.
+ * Linked lists are notoriously bad for traversal performance
+ * if they get allocated just anywhere.
+ * But, I dont know how much traversal we'll be doing, 
+ * and swapping a different allocator is premature optimisation
+ * This is especially pertinent if we basically never remove elements from the tree, 
+ * or add elements between others.
+ * https://dlang.org/phobos/std_experimental_allocator.html
+ * https://dlang.org/phobos/std_experimental_allocator_building_blocks_region.html
+ */
+
 template tree(leaf_type)
 {
 
