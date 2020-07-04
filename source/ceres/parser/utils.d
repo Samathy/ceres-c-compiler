@@ -51,6 +51,8 @@ template tree(leaf_type)
 
     class tree
     {
+        import std.typecons : Nullable;
+
         this()
         {
         }
@@ -61,10 +63,13 @@ template tree(leaf_type)
             return "";
         }
 
-        /** TODO Searches for a particular node in the tree */
-        leaf search_by_data(leaf_type to_find)
+        /** Searches for a particular node in the tree.
+          Returns Nullable!leaf.isNull if node not found, else
+          returns the node
+          */
+        Nullable!leaf search_by_data(leaf_type to_find)
         {
-            return this.recursive_depth_first_search(this.root, to_find);
+            return this.recursive_search(this.root, to_find);
         }
 
         /** Add a new leaf to the tree. Optionally specify parent.
@@ -110,6 +115,8 @@ template tree(leaf_type)
             }
             else if (this.root_item == parent)
             {
+                import std.format : format;
+
                 this.front_item = new leaf(leaf_data, this.root_item);
                 this.root_item.children ~= this.front_item;
                 this.length += 1;
@@ -152,34 +159,34 @@ template tree(leaf_type)
 
         }
 
-        private leaf recursive_depth_first_search(leaf start, leaf_type to_find)
+        private Nullable!leaf recursive_search(leaf start, leaf_type to_find)
         {
             import std.array : empty;
+            import std.format : format;
 
             if (start == to_find)
-                return start;
+                return Nullable!leaf(start);
 
             leaf current_leaf = start;
 
             if (current_leaf.children.empty)
-                throw new TreeException("Could not find leaf");
+                return Nullable!leaf();
 
-            foreach (size_t i, child; current_leaf.children)
+            //Cant get it to walk back up the tree if the recusive function throws.
+            foreach (child; current_leaf.children)
             {
-                if (child == to_find)
-                {
-                    return child;
-                }
 
-                try
-                    return this.recursive_depth_first_search(child, to_find);
-                catch (TreeException e)
-                {
-                    throw e;
-                }
+                if (child == to_find)
+                    return Nullable!leaf(child);
+                if (child.children.empty)
+                    continue;
+
+                auto ret = this.recursive_search(child, to_find);
+                if (!ret.isNull)
+                    return ret;
             }
 
-            throw new TreeException("Could not find leaf");
+            return Nullable!leaf();
         }
 
         private
@@ -345,10 +352,10 @@ template tree(leaf_type)
     t.add_leaf(40, t.root.children[0]);
     t.add_leaf(50, t.root.children[0].children[0]);
 
-    assert(t.search_by_data(40).data == 40);
-    assert(t.search_by_data(40) is t.root.children[0].children[0]);
+    assert(t.search_by_data(40).get.data == 40);
+    assert(t.search_by_data(40).get is t.root.children[0].children[1]);
 
-    assert(t.search_by_data(50).data == 50);
-    assert(t.search_by_data(50) is t.root.children[0].children[0].children[0]);
+    assert(t.search_by_data(50).get.data == 50);
+    assert(t.search_by_data(50).get is t.root.children[0].children[0].children[0]);
 
 }
