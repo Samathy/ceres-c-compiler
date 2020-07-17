@@ -67,12 +67,12 @@ class token
     /** 
       * Overridable method to print the token name, and optionally the string
       * which generated the token. (i.e ID(somevarname))
-      */
     override string toString()
     {
         return format("%s:%s    %s", this.location.line_no,
                 this.location.column_no, this.type_string);
     }
+    */
 
     private
     {
@@ -855,10 +855,12 @@ class operator : token
         }
     }
 
+    /**
     override string toString()
     {
         return this.type_string ~ "(" ~ this.token_string ~ ")";
     }
+    **/
 
     private
     {
