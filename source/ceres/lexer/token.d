@@ -99,7 +99,49 @@ class keyword : token
     }
 }
 
-class AUTO : keyword
+/** Subclass for keywords representing types
+  */
+class typename : keyword
+{
+    this(loc location)
+    {
+        super(location);
+    }
+}
+
+/** Subclass for specifiers on typenames 
+  like 'long' or 'unsigned' that combine with a basic
+  type-name to make a full typename
+  */
+class typespecifer : typename
+{
+    this(loc location)
+    {
+        super(location);
+    }
+}
+
+/** Type qualifiers like 'const'*/
+class typequalifier: keyword
+{
+    this(loc location)
+    {
+        super(location);
+    }
+}
+
+/** storage classes like 'volatile' or 'register' */
+class storageclass: keyword
+{
+    this(loc location)
+    {
+        super(location);
+    }
+}
+
+
+
+class AUTO : storageclass
 {
 
     this(loc location)
@@ -129,7 +171,7 @@ class CASE : keyword
 
 }
 
-class CHAR : keyword
+class CHAR : typename
 {
 
     this(loc location)
@@ -139,7 +181,7 @@ class CHAR : keyword
 
 }
 
-class CONST : keyword
+class CONST : typequalifier
 {
 
     this(loc location)
@@ -179,7 +221,7 @@ class DO : keyword
 
 }
 
-class DOUBLE : keyword
+class DOUBLE : typename
 {
 
     this(loc location)
@@ -199,7 +241,7 @@ class ELSE : keyword
 
 }
 
-class ENUM : keyword
+class ENUM : typename
 {
 
     this(loc location)
@@ -209,7 +251,7 @@ class ENUM : keyword
 
 }
 
-class EXTERN : keyword
+class EXTERN : storageclass
 {
 
     this(loc location)
@@ -219,7 +261,7 @@ class EXTERN : keyword
 
 }
 
-class FLOAT : keyword
+class FLOAT : typename
 {
 
     this(loc location)
@@ -269,7 +311,7 @@ class INLINE : keyword
 
 }
 
-class INT : keyword
+class INT : typename
 {
 
     this(loc location)
@@ -279,7 +321,7 @@ class INT : keyword
 
 }
 
-class LONG : keyword
+class LONG : typespecifer
 {
 
     this(loc location)
@@ -289,7 +331,7 @@ class LONG : keyword
 
 }
 
-class REGISTER : keyword
+class REGISTER : storageclass
 {
 
     this(loc location)
@@ -299,7 +341,7 @@ class REGISTER : keyword
 
 }
 
-class RESTRICT : keyword
+class RESTRICT : typequalifier
 {
 
     this(loc location)
@@ -319,7 +361,7 @@ class RETURN : keyword
 
 }
 
-class SHORT : keyword
+class SHORT : typespecifer
 {
 
     this(loc location)
@@ -329,7 +371,7 @@ class SHORT : keyword
 
 }
 
-class SIGNED : keyword
+class SIGNED : typespecifer
 {
 
     this(loc location)
@@ -349,7 +391,7 @@ class SIZEOF : keyword
 
 }
 
-class STATIC : keyword
+class STATIC : storageclass
 {
 
     this(loc location)
@@ -359,7 +401,7 @@ class STATIC : keyword
 
 }
 
-class STRUCT : keyword
+class STRUCT : typename
 {
 
     this(loc location)
@@ -389,7 +431,7 @@ class TYPEDEF : keyword
 
 }
 
-class UNION : keyword
+class UNION : typename
 {
 
     this(loc location)
@@ -399,7 +441,7 @@ class UNION : keyword
 
 }
 
-class UNSIGNED : keyword
+class UNSIGNED : typespecifer
 {
 
     this(loc location)
@@ -419,7 +461,7 @@ class VOID : keyword
 
 }
 
-class VOLATILE : keyword
+class VOLATILE : typequalifier
 {
 
     this(loc location)
@@ -439,7 +481,7 @@ class WHILE : keyword
 
 }
 
-class _BOOL : keyword
+class _BOOL : typespecifer
 {
 
     this(loc location)
@@ -449,7 +491,7 @@ class _BOOL : keyword
 
 }
 
-class _COMPLEX : keyword
+class _COMPLEX : typespecifer
 {
 
     this(loc location)
@@ -459,7 +501,7 @@ class _COMPLEX : keyword
 
 }
 
-class _IMAGINARY : keyword
+class _IMAGINARY : typespecifer
 {
 
     this(loc location)
@@ -825,6 +867,14 @@ class operator : token
     }
 }
 
+class unary_operator: operator
+{
+    this(loc location, string token_string, string[] allowed_operators)
+    {
+        super(location, token_string);
+    }
+}
+
 class equal : operator
 {
     this(loc location, string token_string)
@@ -833,7 +883,7 @@ class equal : operator
     }
 }
 
-class not : operator
+class not : unary_operator
 {
     this(loc location, string token_string)
     {
@@ -841,7 +891,7 @@ class not : operator
     }
 }
 
-class add : operator
+class add : unary_operator
 {
     this(loc location, string token_string)
     {
@@ -849,7 +899,7 @@ class add : operator
     }
 }
 
-class sub : operator
+class sub : unary_operator
 {
     this(loc location, string token_string)
     {
@@ -873,7 +923,7 @@ class mod : operator
     }
 }
 
-class mul : operator
+class mul : unary_operator
 {
     this(loc location, string token_string)
     {
@@ -985,7 +1035,7 @@ class rshiftAssign : operator
     }
 }
 
-class and : operator
+class and : unary_operator
 {
     this(loc location, string token_string)
     {
