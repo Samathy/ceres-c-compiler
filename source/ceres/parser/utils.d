@@ -94,14 +94,14 @@ template AST(leaf_type)
                 assert(this.root !is null);
                 assert(this.front_item !is null);
                 assert(this.length - 1 == 0);
-                assert(this.root_item == leaf_data);
-                assert(this.front_item == leaf_data);
+                assert(this.root_item.data == leaf_data);
+                assert(this.front_item.data == leaf_data);
             }
             else if (parent !is null)
             {
                 assert(this.root !is null);
-                assert(this.front_item == leaf_data);
-                assert(this.front_item.parent.get_child_by_data(leaf_data));
+                assert(this.front_item.data == leaf_data);
+                //assert(this.root_item.parent.get_child_by_data(leaf_data).data == leaf_data);
             }
         }
         do
