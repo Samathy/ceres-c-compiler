@@ -201,8 +201,8 @@ template AST(leaf_type)
 
             return Nullable!leaf();
         }
-        public
-            int length;
+
+        public int length;
 
         private
         {
