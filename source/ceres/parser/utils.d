@@ -30,7 +30,7 @@ version (unittest)
  * https://dlang.org/phobos/std_experimental_allocator_building_blocks_region.html
  */
 
-template tree(leaf_type)
+template AST(leaf_type)
 {
 
     class TreeException : Exception
@@ -188,10 +188,11 @@ template tree(leaf_type)
 
             return Nullable!leaf();
         }
+        public
+            int length;
 
         private
         {
-            int length;
             leaf root_item;
             leaf front_item;
         }
@@ -278,7 +279,7 @@ template tree(leaf_type)
 
 @BlerpTest("test_tree_add_root_item") unittest
 {
-    auto t = new tree!(int)();
+    auto t = new AST!(int).tree();
     t.add_leaf(10);
     assert(t.root !is null);
     assert(t.length == 1);
@@ -293,7 +294,7 @@ template tree(leaf_type)
 {
     import core.exception : AssertError;
 
-    auto t = new tree!(int)();
+    auto t = new AST!(int).tree();
     t.add_leaf(10);
     try
         t.add_leaf(20);
@@ -308,7 +309,7 @@ template tree(leaf_type)
 
 @BlerpTest("test_tree_add_child") unittest
 {
-    auto t = new tree!(int)();
+    auto t = new AST!(int).tree();
     t.add_leaf(10);
     t.add_leaf(20, t.front_item);
 
@@ -318,7 +319,7 @@ template tree(leaf_type)
 
 @BlerpTest("test_get_child_by_data") unittest
 {
-    auto t = new tree!(int)();
+    auto t = new AST!(int).tree();
     t.add_leaf(10);
     t.add_leaf(20, t.root);
     t.add_leaf(30, t.root);
@@ -330,7 +331,7 @@ template tree(leaf_type)
 
 @BlerpTest("test_search_children") unittest
 {
-    auto t = new tree!(int)();
+    auto t = new AST!(int).tree();
     t.add_leaf(10);
     t.add_leaf(20, t.root);
     t.add_leaf(30, t.root);
@@ -345,7 +346,7 @@ template tree(leaf_type)
 
 @BlerpTest("test_search_for_node") unittest
 {
-    auto t = new tree!(int)();
+    auto t = new AST!(int).tree();
     t.add_leaf(10);
     t.add_leaf(20, t.root);
     t.add_leaf(30, t.root.children[0]);
