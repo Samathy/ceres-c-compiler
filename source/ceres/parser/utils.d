@@ -72,6 +72,19 @@ template AST(leaf_type)
             return this.recursive_search(this.root, to_find);
         }
 
+        bool children_match(string[] children, leaf node)
+        {
+            foreach (size_t i, child; node.children)
+            {
+                if (child.classinfo.name == children[i])
+                    continue;
+                else
+                    return false;
+            }
+
+            return true;
+        }
+
         /** Add a new leaf to the tree. Optionally specify parent.
           * If parent is null, node considered the root.
           */
