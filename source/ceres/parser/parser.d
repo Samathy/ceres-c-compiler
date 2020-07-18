@@ -33,6 +33,10 @@ alias tokenRPAREN = ceres.lexer.token.rparen;
 alias tokenUnaryOperator = ceres.lexer.token.unary_operator;
 alias tokenINT = ceres.lexer.token.INT;
 
+/** Prefix the token module string to a given string.
+  We use this because class.stringof doesnt include module name, but classname.name on an object does.
+  We should ditch this eventually.
+  */
 string prefix_token_module(string tokenname)
 {
     return "ceres.lexer.token." ~ tokenname;
@@ -48,6 +52,8 @@ void warn(string msg)
     writeln("WARN: " ~ msg);
 }
 
+/** The main parser class 
+  */
 class parser
 {
 
@@ -57,6 +63,9 @@ class parser
 
     }
 
+    /** Main parse method.
+      Works through the token list until there are no more tokens.
+      */
     void parse()
     {
 
@@ -89,11 +98,18 @@ abstract class node
         this.tree = tree;
     }
 
+    /** Return true if the front token of the token list
+      is the same as the given expected token.
+      */
     bool expect(string tokenname)
     {
         return tokenname == this.tokens.front().classinfo.name;
     }
 
+    /** Return true if the front token of the token list
+      is the same as the given expected token.
+      Also eat the front character from the tokenlist.
+      */
     bool expect_and_eat(string tokenname)
     {
         if (expect(tokenname))
@@ -104,11 +120,18 @@ abstract class node
         return false;
     }
 
+    /** Pop front character from the token list
+      */
     void eat()
     {
         this.tokens.popFront();
     }
 
+    /** Return true if the front token of the token list
+      is the same as the given expected token.
+      Also eat the front character from the tokenlist.
+      Also add the front token to the tree as a child of the last node.
+      */
     bool expect_eat_add(string tokenname)
     {
         if (this.expect(tokenname))
@@ -201,6 +224,8 @@ class void_node : node
     public token t;
 }
 
+/** parsing node */
+
 class unary_expression : inode
 {
     this(token_list tokens, AST!(node).tree tree)
@@ -211,6 +236,10 @@ class unary_expression : inode
 
         token t = this.tokens.front();
 
+        /** Switches only work on strings and integers and chars, so we're stuck with using classname strings atm.
+          I would prefer to compare types, rather than names of types. 
+          But that would mean switching to if statements instead of switch/case.
+          */
         switch (t.classinfo.name)
         {
         case prefix_token_module(tokenPlusPlus.stringof):
@@ -253,6 +282,7 @@ class unary_expression : inode
     }
 }
 
+/** typename expression */
 class type_name : inode
 {
     this(token_list tokens, AST!(node).tree tree)
@@ -264,6 +294,7 @@ class type_name : inode
     }
 }
 
+/** postfix expression */
 class postfix_expression : inode
 {
     this(token_list tokens, AST!(node).tree tree)
@@ -275,6 +306,7 @@ class postfix_expression : inode
     }
 }
 
+/** case expression */
 class cast_expression : inode
 {
     this(token_list tokens, AST!(node).tree tree)
