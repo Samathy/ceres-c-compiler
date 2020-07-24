@@ -15,6 +15,30 @@ version (unittest)
     }
 }
 
+/** Returns true if the given runtime object's superclass is
+  the same as the given type.
+  */
+template isChildOf(base) if (is(base == class))
+{
+    bool isChildOf(Object child)
+    {
+        return base.classinfo.isBaseOf(child.classinfo);
+    }
+}
+
+/** 
+  Returns true if the given runtime object's type is the given type
+  I really don't know why this kinda template isnt in
+  std.traits or something
+  */
+template isTypeOf(t) if (is(t == class))
+{
+    bool isTypeOf(Object obj)
+    {
+        return typeid(obj) == t.classinfo;
+    }
+}
+
 /* 
  * I reckon using a Region allocator might make trees faster to use.
  * Because they're essentially linked lists, we might benefit from 
