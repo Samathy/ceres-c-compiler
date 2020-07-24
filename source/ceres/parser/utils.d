@@ -15,28 +15,38 @@ version (unittest)
     }
 }
 
-/** Returns true if the given runtime object's superclass is
-  the same as the given type.
+/** 
+  Returns true if the object's type matches the given type
+  Also returns true if the given runtime object's superclass is
+  the same as the given type. 
   */
-template isChildOf(base) if (is(base == class))
+template isTypeOf(base) if (is(base == class))
 {
-    bool isChildOf(Object child)
+    bool isTypeOf(Object child)
     {
         return base.classinfo.isBaseOf(child.classinfo);
     }
 }
 
-/** 
-  Returns true if the given runtime object's type is the given type
-  I really don't know why this kinda template isnt in
-  std.traits or something
-  */
-template isTypeOf(t) if (is(t == class))
+@BlerpTest("test_isTypeOf_true_when_child") unittest
 {
-    bool isTypeOf(Object obj)
-    {
-        return typeid(obj) == t.classinfo;
-    }
+    class a
+    {}
+    class b: a
+    {}
+    auto b_obj = new b();
+    assert(isTypeOf!(a)(b_obj));
+}
+
+@BlerpTest("test_isChildOf_true_when_matches") unittest
+{
+    class a
+    {}
+    class b: a
+    {}
+
+    auto b_obj = new b();
+    assert(isTypeOf!(b)(b_obj));
 }
 
 /* 

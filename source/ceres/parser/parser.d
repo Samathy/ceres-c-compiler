@@ -2,7 +2,7 @@ module ceres.parser.parser;
 
 import ceres.lexer.token;
 import ceres.lexer.lexer : token_list;
-import ceres.parser.utils : AST, isChildOf, isTypeOf;
+import ceres.parser.utils : AST, isTypeOf;
 
 import std.stdio : writeln;
 import std.format : format;
@@ -93,7 +93,7 @@ abstract class node
     {
         bool expect()
         {
-            return this.tokens.front().isChildOf!(expected);
+            return this.tokens.front().isTypeOf!(expected);
         }
     }
 
@@ -231,21 +231,25 @@ class unary_expression : inode
     {
         super(tokens, tree);
 
+        /* 
+           We only need this because `unary_expression` is 
+           the FIRST 
+        */
         tree.add_leaf(this, this.tree.front());
 
         token t = this.tokens.front();
 
-        if (t.isChildOf!(tokenPlusPlus))
+        if (t.isTypeOf!(tokenPlusPlus))
         {
             this.expect_eat_add!(tokenPlusPlus);
             this.tree.add_leaf(new unary_expression(tokens, tree), this.tree.front);
         }
-        else if (t.isChildOf!(tokenMinusMinus))
+        else if (t.isTypeOf!(tokenMinusMinus))
         {
             this.expect_eat_add!(tokenMinusMinus);
             this.tree.add_leaf(new unary_expression(tokens, tree), this.tree.front);
         }
-        else if (t.isChildOf!(tokenSIZEOF))
+        else if (t.isTypeOf!(tokenSIZEOF))
         {
             this.expect_eat_add!(tokenSIZEOF);
             if (this.expect_eat_add!(tokenLPAREN))
@@ -256,7 +260,7 @@ class unary_expression : inode
             else
                 this.tree.add_leaf(new unary_expression(tokens, tree), this.tree.front);
         }
-        else if (t.isChildOf!(tokenUnaryOperator))
+        else if (t.isTypeOf!(tokenUnaryOperator))
         {
             this.expect_eat_add!(tokenUnaryOperator);
             this.tree.add_leaf(new cast_expression(tokens, tree), this.tree.front);
