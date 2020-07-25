@@ -94,7 +94,40 @@ template AST(leaf_type)
         /** TODO Returns a dot graph of the tree and it's contents */
         string get_tree_graph_dot()
         {
-            return "";
+            import std.format: format;
+            import std.traits: isBasicType;
+            import std.string: replace;
+
+            string node_lable(leaf node)
+            {
+                return format("%s_%s", node.data, &node.data).replace(".", "_");
+            }
+
+            string append_children(leaf node)
+            {
+                string output;
+
+                if ( node.children.length > 0 )
+                {
+                    foreach(child; node.children)
+                    {
+                        output ~= format("%s -> %s; \n", node_lable(node), node_lable(child));
+                    }
+
+                    foreach(child; node.children)
+                    {
+                        output ~= append_children(child);
+                    }
+                }
+                return output;
+            }
+
+            string output = "digraph AST{\n";
+            output~= append_children(this.root_item);
+            output~="}";
+
+            return output;
+
         }
 
         /** Searches for a particular node in the tree.
