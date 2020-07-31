@@ -92,7 +92,7 @@ template AST(leaf_type)
         }
 
         /** TODO Returns a dot graph of the tree and it's contents */
-        string get_tree_graph_dot()
+        string get_tree_graph_dot(string filename=null)
         {
             import std.format: format;
             import std.traits: isBasicType;
@@ -111,6 +111,8 @@ template AST(leaf_type)
                 {
                     foreach(child; node.children)
                     {
+                        if (child.terminal)
+                            output ~= format("%s [peripheries=2]", node_lable(child));
                         output ~= format("%s -> %s; \n", node_lable(node), node_lable(child));
                     }
 
@@ -125,6 +127,13 @@ template AST(leaf_type)
             string output = "digraph AST{\n";
             output~= append_children(this.root_item);
             output~="}";
+
+            if (filename)
+            {
+                import std.stdio: File;
+                auto output_file = File(filename, "w");
+                output_file.write(output);
+            }
 
             return output;
 
@@ -155,7 +164,7 @@ template AST(leaf_type)
         /** Add a new leaf to the tree. Optionally specify parent.
           * If parent is null, node considered the root.
           */
-        void add_leaf(leaf_type leaf_data, leaf parent = null)
+        void add_leaf(leaf_type leaf_data, leaf parent = null, bool terminal = false)
         in
         {
             import std.format : format;
@@ -175,12 +184,25 @@ template AST(leaf_type)
                 assert(this.front_item !is null);
                 assert(this.length - 1 == 0);
                 assert(this.root_item.data == leaf_data);
-                assert(this.front_item.data == leaf_data);
+
+                /* If we added a terminal, dont change the front node.
+                   We only need to add nodes to non-terminals
+                */
+                if (terminal == true)
+                    assert(this.front_item.data != leaf_data);
+                else
+                    assert(this.front_item.data == leaf_data);
             }
             else if (parent !is null)
             {
                 assert(this.root !is null);
-                assert(this.front_item.data == leaf_data);
+
+                if (terminal)
+                {
+                    assert(this.front_item.data != leaf_data);
+                }
+                else
+                    assert(this.front_item.data == leaf_data);
                 //assert(this.root_item.parent.get_child_by_data(leaf_data).data == leaf_data);
             }
         }
@@ -188,24 +210,36 @@ template AST(leaf_type)
         {
             if (parent is null)
             {
-                this.root_item = new leaf(leaf_data, null);
-                this.front_item = this.root_item;
+                auto new_leaf = new leaf(leaf_data, null, terminal);
+                new_leaf.is_root = true;
+
+                this.root_item = new_leaf;
+
+                /* Adding a terminal as a root is stupid,
+                   but allowed
+                */
+                if (!terminal)
+                    this.front_item = this.root_item;
                 this.length += 1;
                 return;
             }
             else if (this.root_item == parent)
             {
-                import std.format : format;
+                auto new_leaf = new leaf(leaf_data, this.root_item, terminal);
 
-                this.front_item = new leaf(leaf_data, this.root_item);
-                this.root_item.children ~= this.front_item;
+                if (!terminal)
+                    this.front_item = new_leaf;
+                this.root_item.children ~= new_leaf;
                 this.length += 1;
                 return;
             }
             else
             {
-                this.front_item = new leaf(leaf_data, parent);
-                parent.children ~= this.front_item;
+                auto new_leaf = new leaf(leaf_data, parent, terminal);
+
+                if(!terminal)
+                    this.front_item = new_leaf;
+                parent.children ~= new_leaf;
                 this.length += 1;
                 return;
             }
@@ -281,8 +315,10 @@ template AST(leaf_type)
     /** Leaf of the tree, contains data and information about parents and children */
     class leaf
     {
-        this(leaf_type data, leaf parent)
+        this(leaf_type data, leaf parent, bool terminal=false)
         {
+            this.terminal = terminal;
+
             this.data = data;
 
             if (parent is null)
@@ -338,6 +374,7 @@ template AST(leaf_type)
             leaf_type data;
 
             bool is_root = false;
+            bool terminal;
         }
 
         invariant
