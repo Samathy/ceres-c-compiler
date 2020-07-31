@@ -312,15 +312,26 @@ class cast_expression : inode
     this(token_list tokens, AST!(node).tree tree)
     {
         super(tokens, tree);
-        error(format("%s not production not implemented", __FUNCTION__));
-        this.eat();
-        this.tree.add_leaf(new void_node(tokens, tree), this.tree.front);
+
+        token t = this.tokens.front();
+        
+        if(t.isTypeOf!(tokenLPAREN))
+        {
+            this.expect_eat_add!(tokenLPAREN);
+            this.tree.add_leaf(new type_name(tokens, tree), this.tree.front());
+            this.expect_eat_add!(tokenRPAREN);
+            this.tree.add_leaf(new cast_expression(tokens, tree), this.tree.front());
+        }
+        else
+        {
+            this.tree.add_leaf(new unary_expression(tokens, tree), this.tree.front());
+        }
+        return;
     }
 }
 
 @BlerpTest("test_node_expect_eat_add") unittest
 {
-
     class non_abstract_node : node
     {
         this(token_list tokens, AST!(node).tree tree)
@@ -361,9 +372,16 @@ class cast_expression : inode
     assert(tree.root.children[0].data.t.isTypeOf!(tokenMinusMinus),
             format("Expected child of root tree node to be %s, got %s",
                 tokenMinusMinus.stringof, tree.root.children[0].data.t.classinfo.name));
+    
+    assert(node.expect_eat_add!(tokenLPAREN), format("Tried to expect_eat_add %s, got %s", tokenLPAREN.stringof, tokens.front.classinfo.name));
+
+    writeln(tree.get_tree_graph_dot("test_node_expected_eat_add.dot"));
+    assert(tree.root.children.length == 2, "Root doesnt have enough children");
+    assert(tree.root.children[1].data.t.isTypeOf!(tokenLPAREN), "Expected second child to be LPAREN, but it isnt");
 
     assert(!tree.empty(), "Tree doesnt contain any nodes");
-    assert(tree.length == 2, "Number of nodes in the tree is not as expected");
+    assert(tree.length == 3, format("Number of nodes in the tree is not as expected. Expected %s, got %s", 3, tree.length));
+
 }
 
 @BlerpTest("test_unary_expression") unittest
@@ -396,19 +414,46 @@ class cast_expression : inode
         prefix_token_module(tokenRPAREN.stringof), "ceres.parser.parser.type_name",
         prefix_token_module(tokenLPAREN.stringof),
     ];
-    */
+       */
 
     tree.add_leaf(new unary_expression(tokens, tree), tree.front());
 
     assert(
             tree.root.children[0].data.classinfo.name == "ceres.parser.parser."
             ~ unary_expression.stringof);
-    assert(
-            tree.root.children[0].data.classinfo.name == "ceres.parser.parser."
-            ~ unary_expression.stringof);
+
+    auto ue = tree.root.children[0];
+
+    writeln(tree.get_tree_graph_dot("test_unary_expression.dot"));
+
+    assert(ue.children[0].data.classinfo.name == "ceres.parser.parser."~token_node.stringof);
+
 
     /*
     assert(tree.children_match(children, tree.root.children[0]),
             "Some of the node's children don't match");
-    */
+   */
+}
+
+@BlerpTest("test_cast_expression") unittest
+{
+    import ceres.lexer.location : loc;
+
+    auto tokens = new token_list();
+    auto l = loc();
+    auto tree = new AST!(node).tree();
+    tree.add_leaf(new void_node(tokens, tree));
+
+    tokens.add(new tokenSIZEOF(l));
+    tokens.add(new tokenLPAREN(l, "("));
+    tokens.add(new tokenINT(l));
+    tokens.add(new tokenRPAREN(l, ")"));
+
+    tree.add_leaf(new cast_expression(tokens, tree), tree.front());
+
+    writeln(tree.get_tree_graph_dot());
+
+    assert(tree.root.children[0].data.isTypeOf!(unary_expression));
+    assert(false, "Finish this test");
+    
 }
