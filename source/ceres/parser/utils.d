@@ -49,6 +49,7 @@ template isTypeOf(base) if (is(base == class))
     assert(isTypeOf!(b)(b_obj));
 }
 
+
 /* 
  * I reckon using a Region allocator might make trees faster to use.
  * Because they're essentially linked lists, we might benefit from 
@@ -312,6 +313,7 @@ template AST(leaf_type)
         }
     }
 
+
     /** Leaf of the tree, contains data and information about parents and children */
     class leaf
     {
@@ -497,6 +499,25 @@ template AST(leaf_type)
     assert(t.search_by_data(50).get.data == 50);
     assert(t.search_by_data(50).get is t.root.children[0].children[0].children[0]);
 
+}
+
+@BlerpTest("test_leaf_opEquals") unittest
+{
+    auto l = new AST!(int).leaf(10, null, false);
+    auto l2 = new AST!(int).leaf(10, null, false);
+    
+
+    /* Really I'd like it so you could compare leaf objects
+        but dlang's opEquals semantics are bad. 
+        You can't specify an overload taking a particular type, only one that takes Object.
+        So we cant do this.data == b.data.
+        If this test starts failing, you've probably solved that problem.
+    */   
+    assert(l != l2, "Leaf object comparason failed");
+    
+
+
+    assert(l == l2.data, "Leaf data failed");
 }
 
 @BlerpTest("test_leaf_has_parent") unittest
