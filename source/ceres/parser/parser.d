@@ -21,6 +21,7 @@ version (unittest)
     }
 }
 
+
 alias tokenID = ceres.lexer.token.ID;
 alias tokenPlusPlus = ceres.lexer.token.plusplus;
 alias tokenMinusMinus = ceres.lexer.token.minusminus;
@@ -126,26 +127,27 @@ abstract class node
       Also eat the front character from the tokenlist.
       Also add the front token to the tree as a child of the last node.
       */
+
+
     template expect_eat_add(expected)
     {
-        bool expect_eat_add()
+        bool expect_eat_add(bool append=false)
         {
             if (this.expect!(expected))
             {
                 if (this.tree.empty()) //If we're adding the root node
                 {
-                    this.tree.add_leaf(new token_node(this.tokens, this.tree, this.tokens.front()));
+                    this.tree.add_leaf(new token_node(this.tokens, this.tree, this.tokens.front()), null, true);
                 }
-                else if (this.tree.front().parent is null) //if we're adding a child to the root node
+                else if (this.tree.length == 1) //if we're adding a child to the root node
                 {
                     this.tree.add_leaf(new token_node(this.tokens, this.tree,
-                            this.tokens.front()), this.tree.front());
+                            this.tokens.front()), this.tree.front(), true);
                 }
                 else //If we're adding a child of any other node
                 {
-
                     this.tree.add_leaf(new token_node(this.tokens, this.tree,
-                            this.tokens.front()), this.tree.front().parent);
+                            this.tokens.front()), this.tree.front(), true);
                 }
 
                 this.eat();
@@ -205,7 +207,13 @@ class token_node : enode
     this(token_list tokens, AST!(node).tree tree, token t)
     {
         super(tokens, tree);
-        this.t = t;
+        this.t = t; 
+        /* I hate how getting the token data from an AST leaf 
+           looks like this.tree.root.children[0].data.t.
+           But I don't yet know how to abstract it away to make 
+           it easier.
+        */
+
     }
 }
 
