@@ -315,6 +315,8 @@ template AST(leaf_type)
     /** Leaf of the tree, contains data and information about parents and children */
     class leaf
     {
+        import std.algorithm: canFind;
+
         this(leaf_type data, leaf parent, bool terminal=false)
         {
             this.terminal = terminal;
@@ -364,6 +366,25 @@ template AST(leaf_type)
         leaf get_child_by_data(leaf_type data)
         {
             return this.children[this.search_children_by_data(data)];
+        }
+
+        /** Returns true if this leaf has 
+          the given node as a child
+          Else false.
+          */
+        bool has_child(leaf child)
+        {
+            return this.children.canFind(child);
+        }
+
+
+        /** Returns true if this leaf has the given node
+          as a parent.
+          Else false.
+          */
+        bool has_parent(leaf parent)
+        {
+            return this.parent == parent;
         }
 
         public
@@ -477,3 +498,42 @@ template AST(leaf_type)
     assert(t.search_by_data(50).get is t.root.children[0].children[0].children[0]);
 
 }
+
+@BlerpTest("test_leaf_has_parent") unittest
+{
+    auto t = new AST!(int).tree();
+    t.add_leaf(10);
+    t.add_leaf(20, t.root);
+
+    assert(t.root.children[0].has_parent(t.root));
+}
+
+@BlerpTest("test_leaf_has_child") unittest
+{
+    auto t = new AST!(int).tree();
+    t.add_leaf(10);
+    t.add_leaf(20, t.root);
+
+    assert(t.root.has_child(t.root.children[0]));
+}
+
+@BlerpTest("test_leaf_doesnt_have_parent") unittest
+{
+    auto t = new AST!(int).tree();
+    t.add_leaf(10);
+    t.add_leaf(20, t.root);
+    t.add_leaf(20, t.root.children[0]);
+
+    assert(!t.root.children[0].children[0].has_parent(t.root));
+}
+
+@BlerpTest("test_leaf_doesnt_have_child") unittest
+{
+    auto t = new AST!(int).tree();
+    t.add_leaf(10);
+    t.add_leaf(20, t.root);
+    t.add_leaf(20, t.root.children[0]);
+
+    assert(!t.root.has_child(t.root.children[0].children[0]));
+}
+
