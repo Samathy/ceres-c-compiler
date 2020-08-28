@@ -417,6 +417,116 @@ template AST(leaf_type)
     }
 }
 
+version(unittest)
+{
+    /** Compare two instances of AST trees.
+
+      I'd love this function to be opEquals of the tree class,
+
+      This requires the two trees to be <i>exactly</i> the same.
+      i.e the order of the lists in which the children reside
+      need to be identical. We could probably make 
+      a version of this which doesnt require that, 
+      using canFind and find from std.algorithm
+      */
+
+    template compare_trees (leaf_type)
+    {
+        import std.format: format;
+
+        alias ast_t = AST!(leaf_type);
+        alias tree_t = ast_t.tree;
+        alias leaf_t = ast_t.leaf;
+
+        bool compare_trees(tree_t a, tree_t b, bool function(leaf_t a, leaf_t b) compare_leaves)
+        {
+
+            assert(a.length == b.length);
+            assert(compare_leaves(a.root, b.root), format("Root data didnt match. %s and %s", a.root.data, b.root.data));
+
+            check_child_lengths_match(a.root, b.root);
+            recursive_walk(a.root, b.root, compare_leaves);
+
+            return true;
+        }
+
+        bool recursive_walk(leaf_t a,  leaf_t b, bool function(leaf_t a, leaf_t b) compare_leaves)
+        {
+            assert(check_child_lengths_match(a, b), format("Child lengths dont match. a %s : b %s", a.children.length, b.children.length));
+
+            foreach(size_t i, child; a.children)
+            {
+
+                assert(check_child_lengths_match(child, b.children[i]));
+                assert(compare_leaves(child, b.children[i]));
+                assert(recursive_walk(child, b.children[i], compare_leaves));
+            }
+
+            return true;
+        }
+
+        bool check_leaf_matches(leaf_t a, leaf_t b)
+        {
+            return a.data == b.data;
+        }
+
+        bool check_child_lengths_match(leaf_t a, leaf_t b)
+        {
+            return a.children.length == b.children.length;
+        }
+    }
+    
+    template tree_factory ( leaf_type )
+    {
+        AST!(leaf_type).tree tree_factory(leaf_type[] leafdatalist)
+        {
+            auto t = new AST!(leaf_type).tree(); 
+
+            foreach (d; leafdatalist)
+            {
+                t.add_leaf(d);
+            }
+
+            return t;
+        }
+    }
+
+}
+
+
+@BlerpTest("test_comparing_trees_matches") unittest
+{
+    class container
+    {
+        this(int d)
+        {
+            this.data = d;
+        }
+        int data;
+    }
+
+    auto t = new AST!(container).tree();
+
+    t.add_leaf(new container(0));
+    t.add_leaf(new container(10), t.root, false);
+    t.add_leaf(new container(20), t.root, false);
+    t.add_leaf(new container(30), t.front(), true);
+    t.add_leaf(new container(40), t.front(), true);
+
+
+    auto t2 = new AST!(container).tree();
+
+    t2.add_leaf(new container(0));
+    t2.add_leaf(new container(10), t2.root, false);
+    t2.add_leaf(new container(20), t2.root, false);
+    t2.add_leaf(new container(30), t2.front(), true);
+    t2.add_leaf(new container(40), t2.front(), true);
+
+    assert(t.length == t2.length);
+
+    compare_trees!(container)(t, t2, (a, b){return a.data.data == b.data.data;}) ;
+}
+
 @BlerpTest("test_tree_add_root_item") unittest
 {
     auto t = new AST!(int).tree();
