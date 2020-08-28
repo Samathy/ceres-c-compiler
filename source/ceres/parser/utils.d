@@ -31,9 +31,13 @@ template isTypeOf(base) if (is(base == class))
 @BlerpTest("test_isTypeOf_true_when_child") unittest
 {
     class a
-    {}
-    class b: a
-    {}
+    {
+    }
+
+    class b : a
+    {
+    }
+
     auto b_obj = new b();
     assert(isTypeOf!(a)(b_obj));
 }
@@ -41,14 +45,16 @@ template isTypeOf(base) if (is(base == class))
 @BlerpTest("test_isChildOf_true_when_matches") unittest
 {
     class a
-    {}
-    class b: a
-    {}
+    {
+    }
+
+    class b : a
+    {
+    }
 
     auto b_obj = new b();
     assert(isTypeOf!(b)(b_obj));
 }
-
 
 /* 
  * I reckon using a Region allocator might make trees faster to use.
@@ -93,11 +99,11 @@ template AST(leaf_type)
         }
 
         /** TODO Returns a dot graph of the tree and it's contents */
-        string get_tree_graph_dot(string filename=null)
+        string get_tree_graph_dot(string filename = null)
         {
-            import std.format: format;
-            import std.traits: isBasicType;
-            import std.string: replace;
+            import std.format : format;
+            import std.traits : isBasicType;
+            import std.string : replace;
 
             string node_lable(leaf node)
             {
@@ -108,16 +114,16 @@ template AST(leaf_type)
             {
                 string output;
 
-                if ( node.children.length > 0 )
+                if (node.children.length > 0)
                 {
-                    foreach(child; node.children)
+                    foreach (child; node.children)
                     {
                         if (child.terminal)
                             output ~= format("%s [peripheries=2]", node_lable(child));
                         output ~= format("%s -> %s; \n", node_lable(node), node_lable(child));
                     }
 
-                    foreach(child; node.children)
+                    foreach (child; node.children)
                     {
                         output ~= append_children(child);
                     }
@@ -126,12 +132,13 @@ template AST(leaf_type)
             }
 
             string output = "digraph AST{\n";
-            output~= append_children(this.root_item);
-            output~="}";
+            output ~= append_children(this.root_item);
+            output ~= "}";
 
             if (filename)
             {
-                import std.stdio: File;
+                import std.stdio : File;
+
                 auto output_file = File(filename, "w");
                 output_file.write(output);
             }
@@ -204,7 +211,8 @@ template AST(leaf_type)
                     e.g when using 'int' type under test
                     */
                     //assert(this.front_item.data != leaf_data);
-                    {}
+                    {
+                    }
                 }
                 else
                     assert(this.front_item.data == leaf_data);
@@ -242,7 +250,7 @@ template AST(leaf_type)
             {
                 auto new_leaf = new leaf(leaf_data, parent, terminal);
 
-                if(!terminal)
+                if (!terminal)
                     this.front_item = new_leaf;
                 parent.children ~= new_leaf;
                 this.length += 1;
@@ -317,13 +325,12 @@ template AST(leaf_type)
         }
     }
 
-
     /** Leaf of the tree, contains data and information about parents and children */
     class leaf
     {
-        import std.algorithm: canFind;
+        import std.algorithm : canFind;
 
-        this(leaf_type data, leaf parent, bool terminal=false)
+        this(leaf_type data, leaf parent, bool terminal = false)
         {
             this.terminal = terminal;
 
@@ -340,22 +347,22 @@ template AST(leaf_type)
         {
             return this.data == o;
         }
-        
+
         override bool opEquals(Object o)
         {
             if (typeid(o) == typeid(leaf))
             {
-                auto rhs = cast(const leaf)o;
+                auto rhs = cast(const leaf) o;
                 return this.data == rhs.data;
             }
             return false;
         }
-        
+
         bool opEquals(size_t o)
         {
             return this.toHash() == o;
         }
-       
+
         void opAssign(leaf_type data)
         {
             this.data = data;
@@ -387,7 +394,6 @@ template AST(leaf_type)
         {
             return this.children.canFind(child);
         }
-
 
         /** Returns true if this leaf has the given node
           as a parent.
@@ -426,7 +432,7 @@ template AST(leaf_type)
     }
 }
 
-version(unittest)
+version (unittest)
 {
     /** Compare two instances of AST trees.
 
@@ -439,9 +445,9 @@ version(unittest)
       using canFind and find from std.algorithm
       */
 
-    template compare_trees (leaf_type)
+    template compare_trees(leaf_type)
     {
-        import std.format: format;
+        import std.format : format;
 
         alias ast_t = AST!(leaf_type);
         alias tree_t = ast_t.tree;
@@ -451,7 +457,8 @@ version(unittest)
         {
 
             assert(a.length == b.length);
-            assert(compare_leaves(a.root, b.root), format("Root data didnt match. %s and %s", a.root.data, b.root.data));
+            assert(compare_leaves(a.root, b.root),
+                    format("Root data didnt match. %s and %s", a.root.data, b.root.data));
 
             check_child_lengths_match(a.root, b.root);
             recursive_walk(a.root, b.root, compare_leaves);
@@ -459,11 +466,12 @@ version(unittest)
             return true;
         }
 
-        bool recursive_walk(leaf_t a,  leaf_t b, bool function(leaf_t a, leaf_t b) compare_leaves)
+        bool recursive_walk(leaf_t a, leaf_t b, bool function(leaf_t a, leaf_t b) compare_leaves)
         {
-            assert(check_child_lengths_match(a, b), format("Child lengths dont match. a %s : b %s", a.children.length, b.children.length));
+            assert(check_child_lengths_match(a, b), format("Child lengths dont match. a %s : b %s",
+                    a.children.length, b.children.length));
 
-            foreach(size_t i, child; a.children)
+            foreach (size_t i, child; a.children)
             {
 
                 assert(check_child_lengths_match(child, b.children[i]));
@@ -484,12 +492,12 @@ version(unittest)
             return a.children.length == b.children.length;
         }
     }
-    
-    template tree_factory ( leaf_type )
+
+    template tree_factory(leaf_type)
     {
         AST!(leaf_type).tree tree_factory(leaf_type[] leafdatalist)
         {
-            auto t = new AST!(leaf_type).tree(); 
+            auto t = new AST!(leaf_type).tree();
 
             foreach (d; leafdatalist)
             {
@@ -502,7 +510,6 @@ version(unittest)
 
 }
 
-
 @BlerpTest("test_comparing_trees_matches") unittest
 {
     class container
@@ -511,6 +518,7 @@ version(unittest)
         {
             this.data = d;
         }
+
         int data;
     }
 
@@ -522,7 +530,6 @@ version(unittest)
     t.add_leaf(new container(30), t.front(), true);
     t.add_leaf(new container(40), t.front(), true);
 
-
     auto t2 = new AST!(container).tree();
 
     t2.add_leaf(new container(0));
@@ -533,7 +540,7 @@ version(unittest)
 
     assert(t.length == t2.length);
 
-    compare_trees!(container)(t, t2, (a, b){return a.data.data == b.data.data;}) ;
+    compare_trees!(container)(t, t2, (a, b) { return a.data.data == b.data.data; });
 }
 
 @BlerpTest("test_tree_add_root_item") unittest
@@ -624,10 +631,10 @@ version(unittest)
 {
     auto l = new AST!(int).leaf(10, null, false);
     auto l2 = new AST!(int).leaf(10, null, false);
-    
+
     //Call leaf.opEquals(Object o)
     assert(l == l2, "Leaf object comparason failed");
-    
+
     //Call leaf.opEquals(leaf_type o)
     assert(l == l2.data, "Leaf data failed");
 }
@@ -684,7 +691,7 @@ version(unittest)
 @BlerpTest("test_leaves_with_same_data") unittest
 {
     auto t = new AST!(int).tree();
-    
+
     t.add_leaf(10);
     t.add_leaf(30, t.root);
     t.add_leaf(30, t.front, true);

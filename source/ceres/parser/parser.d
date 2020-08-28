@@ -21,7 +21,6 @@ version (unittest)
     }
 }
 
-
 alias tokenID = ceres.lexer.token.ID;
 alias tokenPlusPlus = ceres.lexer.token.plusplus;
 alias tokenMinusMinus = ceres.lexer.token.minusminus;
@@ -128,16 +127,16 @@ abstract class node
       Also add the front token to the tree as a child of the last node.
       */
 
-
     template expect_eat_add(expected)
     {
-        bool expect_eat_add(bool append=false)
+        bool expect_eat_add(bool append = false)
         {
             if (this.expect!(expected))
             {
                 if (this.tree.empty()) //If we're adding the root node
                 {
-                    this.tree.add_leaf(new token_node(this.tokens, this.tree, this.tokens.front()), null, true);
+                    this.tree.add_leaf(new token_node(this.tokens, this.tree,
+                            this.tokens.front()), null, true);
                 }
                 else if (this.tree.length == 1) //if we're adding a child to the root node
                 {
@@ -207,7 +206,7 @@ class token_node : enode
     this(token_list tokens, AST!(node).tree tree, token t)
     {
         super(tokens, tree);
-        this.t = t; 
+        this.t = t;
         /* I hate how getting the token data from an AST leaf 
            looks like this.tree.root.children[0].data.t.
            But I don't yet know how to abstract it away to make 
@@ -314,8 +313,8 @@ class cast_expression : inode
         super(tokens, tree);
 
         token t = this.tokens.front();
-        
-        if(t.isTypeOf!(tokenLPAREN))
+
+        if (t.isTypeOf!(tokenLPAREN))
         {
             this.expect_eat_add!(tokenLPAREN);
             this.tree.add_leaf(new type_name(tokens, tree), this.tree.front());
@@ -372,15 +371,19 @@ class cast_expression : inode
     assert(tree.root.children[0].data.t.isTypeOf!(tokenMinusMinus),
             format("Expected child of root tree node to be %s, got %s",
                 tokenMinusMinus.stringof, tree.root.children[0].data.t.classinfo.name));
-    
-    assert(node.expect_eat_add!(tokenLPAREN), format("Tried to expect_eat_add %s, got %s", tokenLPAREN.stringof, tokens.front.classinfo.name));
+
+    assert(node.expect_eat_add!(tokenLPAREN), format("Tried to expect_eat_add %s, got %s",
+            tokenLPAREN.stringof, tokens.front.classinfo.name));
 
     writeln(tree.get_tree_graph_dot("test_node_expected_eat_add.dot"));
     assert(tree.root.children.length == 2, "Root doesnt have enough children");
-    assert(tree.root.children[1].data.t.isTypeOf!(tokenLPAREN), "Expected second child to be LPAREN, but it isnt");
+    assert(tree.root.children[1].data.t.isTypeOf!(tokenLPAREN),
+            "Expected second child to be LPAREN, but it isnt");
 
     assert(!tree.empty(), "Tree doesnt contain any nodes");
-    assert(tree.length == 3, format("Number of nodes in the tree is not as expected. Expected %s, got %s", 3, tree.length));
+    assert(tree.length == 3,
+            format("Number of nodes in the tree is not as expected. Expected %s, got %s",
+                3, tree.length));
 
 }
 
@@ -426,8 +429,7 @@ class cast_expression : inode
 
     writeln(tree.get_tree_graph_dot("test_unary_expression.dot"));
 
-    assert(ue.children[0].data.classinfo.name == "ceres.parser.parser."~token_node.stringof);
-
+    assert(ue.children[0].data.classinfo.name == "ceres.parser.parser." ~ token_node.stringof);
 
     /*
     assert(tree.children_match(children, tree.root.children[0]),
@@ -455,5 +457,5 @@ class cast_expression : inode
 
     assert(tree.root.children[0].data.isTypeOf!(unary_expression));
     assert(false, "Finish this test");
-    
+
 }
