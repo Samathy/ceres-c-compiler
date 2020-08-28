@@ -340,17 +340,22 @@ template AST(leaf_type)
         {
             return this.data == o;
         }
-
+        
         override bool opEquals(Object o)
         {
-            return this is o;
+            if (typeid(o) == typeid(leaf))
+            {
+                auto rhs = cast(const leaf)o;
+                return this.data == rhs.data;
+            }
+            return false;
         }
-
+        
         bool opEquals(size_t o)
         {
             return this.toHash() == o;
         }
-
+       
         void opAssign(leaf_type data)
         {
             this.data = data;
@@ -620,17 +625,10 @@ version(unittest)
     auto l = new AST!(int).leaf(10, null, false);
     auto l2 = new AST!(int).leaf(10, null, false);
     
-
-    /* Really I'd like it so you could compare leaf objects
-        but dlang's opEquals semantics are bad. 
-        You can't specify an overload taking a particular type, only one that takes Object.
-        So we cant do this.data == b.data.
-        If this test starts failing, you've probably solved that problem.
-    */   
-    assert(l != l2, "Leaf object comparason failed");
+    //Call leaf.opEquals(Object o)
+    assert(l == l2, "Leaf object comparason failed");
     
-
-
+    //Call leaf.opEquals(leaf_type o)
     assert(l == l2.data, "Leaf data failed");
 }
 
