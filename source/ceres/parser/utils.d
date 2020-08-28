@@ -200,7 +200,11 @@ template AST(leaf_type)
 
                 if (terminal)
                 {
-                    assert(this.front_item.data != leaf_data);
+                    /*This falls apart when the data is identical.
+                    e.g when using 'int' type under test
+                    */
+                    //assert(this.front_item.data != leaf_data);
+                    {}
                 }
                 else
                     assert(this.front_item.data == leaf_data);
@@ -662,9 +666,28 @@ version(unittest)
 {
     auto t = new AST!(int).tree();
     t.add_leaf(10);
-    t.add_leaf(20, t.root);
-    t.add_leaf(20, t.root.children[0]);
+    assert(t.root.data == 10);
+    t.add_leaf(30, t.root);
+    assert(t.root.children[0].data == 30);
+    t.add_leaf(20, t.root.children[0], true);
+    assert(t.root.children[0].children[0].data == 20);
+
+    t.get_tree_graph_dot("test_leaf_doesnt_have_child.dot");
 
     assert(!t.root.has_child(t.root.children[0].children[0]));
 }
 
+/** Test adding terminal leaves with the same data as the front leaf.
+  This is unlikely to happen during normal use because each node is probably a different
+  object. 
+  But, for later optimisation, for tree nodes that are only types ( like keywords ) we might
+  want to maintain a pool of objects and just add the same ones, instead of making new objects.
+  */
+@BlerpTest("test_leaves_with_same_data") unittest
+{
+    auto t = new AST!(int).tree();
+    
+    t.add_leaf(10);
+    t.add_leaf(30, t.root);
+    t.add_leaf(30, t.front, true);
+}
