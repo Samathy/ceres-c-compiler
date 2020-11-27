@@ -6,13 +6,14 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v2
     - uses: dlang-community/setup-dlang@v1
-      with:
-        compiler: dmd-latest- 
-    - name: Lint
+
+    - name: 'Lint'
       run: dfmt source/
-    - name: Test
-      run: dub test
+    - name: 'Build and Test'
+      run:  |
+        dub build --compiler=$DC
+        dub test --compiler=$DC
