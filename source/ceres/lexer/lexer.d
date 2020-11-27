@@ -15,17 +15,7 @@ version (unittest)
 
     import ceres.lexer.lexer_test_utils : tcase, testLexer, testEmissionState,
         testIntermediateState, testKeywordEmissionState;
-
-    import blerp.blerp;
-    static this()
-    {
-        import core.runtime;
-        Runtime.moduleUnitTester = { return true; };
-        runTests!(__MODULE__); 
-    }
 }
-
-import blerp.blerp: BlerpTest;
 
 import std.range.primitives : popFront, empty, isInputRange;
 import std.traits : isSomeChar;
@@ -43,7 +33,7 @@ import std.traits : isSomeChar;
     return a[0];
 }
 
-@BlerpTest("test_char[]_front()") unittest
+@("test_char[]_front()") unittest
 {
     char[] c = cast(char[]) "hello";
 
@@ -65,7 +55,7 @@ import ceres.lexer.location: loc;
     return l;
 }
 
-@BlerpTest("test_char_buffer_has_current_location") unittest
+@("test_char_buffer_has_current_location") unittest
 {
     char[] c = ['a', 'b', 'c', 'd', 'e'];
 
@@ -223,7 +213,7 @@ template lexer(Range, RangeChar)
     }
 }
 
-@BlerpTest("test_lexer") unittest
+@("test_lexer") unittest
 {
     tcase caseOne = {input: cast(char[]) "if ", emitted_token_count: 1, emits: true};
     tcase caseTwo = {input: cast(char[]) "10 0xDEADBEEF", emitted_token_count: 2};
@@ -1223,7 +1213,7 @@ template state_template(Range, RangeChar)
 
 }
 
-@BlerpTest("test_start_state") unittest
+@("test_start_state") unittest
 {
 
     //This is honestly more of testing each and every possible input character
@@ -1264,7 +1254,7 @@ template state_template(Range, RangeChar)
     testIntermediateState!(state_template!(char[], char).start, char[], char)(cases);
 }
 
-@BlerpTest("test_isIf") unittest
+@("test_isIf") unittest
 {
     tcase caseOne = { input: cast(char[]) "f ", char_buffer_expected: cast(char[])"if", emits:true, emits_class:"IF", prefilled_char_buffer:cast(char[]) "i"};
     tcase caseTwo = { input: cast(char[]) "fxx", char_buffer_expected: cast(char[]) "if", prefilled_char_buffer:cast(char[]) "i" };
@@ -1276,7 +1266,7 @@ template state_template(Range, RangeChar)
     testKeywordEmissionState!(state_template!(char[], char).isIf, char[], char)(cases);
 }
 
-@BlerpTest("test_isIdentifier") unittest
+@("test_isIdentifier") unittest
 {
     import ceres.lexer.token : classInfoNameToPlainName;
 
@@ -1289,7 +1279,7 @@ template state_template(Range, RangeChar)
     testEmissionState!(state_template!(char[], char).isIdentifierOrKeyword, char[], char)(cases);
 }
 
-@BlerpTest("test_isHexOrOct") unittest
+@("test_isHexOrOct") unittest
 {
     import ceres.lexer.token : classInfoNameToPlainName; //ClassInfo.name is the same form as TypeInfo.name
 
@@ -1303,7 +1293,7 @@ template state_template(Range, RangeChar)
 
 }
 
-@BlerpTest("test_isHex") unittest
+@("test_isHex") unittest
 {
     //The first 2 characters would have already been eaten by isOct - so we might not need
     // to check for 0x.
@@ -1321,7 +1311,7 @@ template state_template(Range, RangeChar)
     testEmissionState!(state_template!(char[], char).isHex, char[], char)(cases);
 }
 
-@BlerpTest("test_isOct") unittest
+@("test_isOct") unittest
 {
     tcase case1 = {input:cast(char[]) "1236654", char_buffer_expected:cast(char[]) "1236654", emits: true,emits_class: "octLiteral"};
     tcase case2 = {input:cast(char[]) "00665  ", char_buffer_expected:cast(char[]) "00665", emits: true, emits_class: "octLiteral"};
@@ -1336,7 +1326,7 @@ template state_template(Range, RangeChar)
     testEmissionState!(state_template!(char[], char).isOct, char[], char)(cases);
 }
 
-@BlerpTest("test_isInteger") unittest
+@("test_isInteger") unittest
 {
     tcase case1 = {input: cast(char[]) "123455", char_buffer_expected: cast(char[]) "123455", emits:true, emits_class: "integerLiteral"};
     tcase case2 = {input:cast(char[]) "9283  ", char_buffer_expected:cast(char[]) "9283", emits:true, emits_class: "integerLiteral"};
@@ -1349,7 +1339,7 @@ template state_template(Range, RangeChar)
     testEmissionState!(state_template!(char[], char).isInteger, char[], char)(cases);
 }
 
-@BlerpTest("test_isRparen") unittest
+@("test_isRparen") unittest
 {
     tcase caseOne = { input: cast(char[]) ")", char_buffer_expected: cast(char[]) ")",  emits: true, emits_class: "rparen", prefilled_char_buffer: cast(char[]) ")"};
     tcase caseTwo = { input: cast(char[]) "}", char_buffer_expected: cast(char[]) "}", emits: true, emits_class: "rcurly", prefilled_char_buffer: cast(char[]) "}"};
@@ -1361,7 +1351,7 @@ template state_template(Range, RangeChar)
     testEmissionState!(state_template!(char[], char).isRparen, char[], char)(cases);
 }
 
-@BlerpTest("test_isLparen") unittest
+@("test_isLparen") unittest
 {
     tcase caseOne = { input: cast(char[]) "(", char_buffer_expected: cast(char[]) "(", emits: true, emits_class: "lparen", prefilled_char_buffer: cast(char[]) "(" };
     tcase caseTwo = { input: cast(char[]) "{", char_buffer_expected: cast(char[]) "{", emits: true, emits_class: "lcurly", prefilled_char_buffer: cast(char[]) "{" };
@@ -1373,7 +1363,7 @@ template state_template(Range, RangeChar)
     testEmissionState!(state_template!(char[], char).isLparen, char[], char)(cases);
 }
 
-@BlerpTest("test_isOct") unittest
+@("test_isOct") unittest
 {
     tcase caseOne = { input: cast(char[]) " 10", throws: false, emits: true, emits_class: "add", prefilled_char_buffer: cast(char[]) "+", char_buffer_expected: cast(char[]) "+" };
 
@@ -1382,7 +1372,7 @@ template state_template(Range, RangeChar)
     testEmissionState!(state_template!(char[], char).isOperator, char[], char)(cases);
 }
 
-@BlerpTest("test_isOperator")  unittest
+@("test_isOperator")  unittest
 {
     import std.typecons: Tuple, tuple;
     Tuple!(string,string)[] punc = [
@@ -1414,7 +1404,7 @@ template state_template(Range, RangeChar)
 }
 
 
-@BlerpTest("test_logical")  unittest
+@("test_logical")  unittest
 {
     tcase caseOne = { input: cast(char[]) "&&", char_buffer_expected: cast(char[]) "&", emits: true, emits_class: "andand", prefilled_char_buffer: cast(char[]) "&" };
     tcase caseTwo = { input: cast(char[]) "||", char_buffer_expected: cast(char[]) "|", emits: true, emits_class: "oror", prefilled_char_buffer: cast(char[]) "|" };

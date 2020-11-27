@@ -1,17 +1,5 @@
 module ceres.lexer.utils;
 
-version (unittest)
-{
-    import blerp.blerp;
-
-    static this()
-    {
-        runTests!(__MODULE__);
-    }
-}
-
-import blerp.blerp : BlerpTest;
-
 bool isNewLine(char character)
 {
     import std.uni : lineSep, paraSep, nelSep;
@@ -25,7 +13,7 @@ bool isNewLine(char character)
         return false;
 }
 
-@BlerpTest("test_isNewLine") unittest
+@("test_isNewLine") unittest
 {
     assert(isNewLine('|') == false, "| is being counted as a newline");
     assert(isNewLine('\n') == true, "\\n is not being counted as a new line");

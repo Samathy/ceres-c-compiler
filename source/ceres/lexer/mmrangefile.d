@@ -15,17 +15,6 @@ import ceres.lexer.location : loc;
 
 import ceres.lexer.utils: isNewLine;
 
-version (unittest)
-{
-    import blerp.blerp;
-
-    static this()
-    {
-        runTests!(__MODULE__);
-    }
-}
-
-import blerp.blerp : BlerpTest;
 
 /** 
   * An input range backed by a memory-mapped file
@@ -95,7 +84,7 @@ class mmrangefile
     }
 }
 
-@BlerpTest("test_mmrangefile") unittest
+@("test_mmrangefile") unittest
 {
     import std.stdio;
     import std.format: format;

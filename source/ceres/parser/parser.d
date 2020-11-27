@@ -9,19 +9,10 @@ import std.format : format;
 
 version (unittest)
 {
-    import blerp.blerp;
     import std.stdio : writeln;
 
-    static this()
-    {
-        import core.runtime;
-
-        Runtime.moduleUnitTester = { return true; };
-        runTests!(__MODULE__);
-    }
 }
 
-import blerp.blerp: BlerpTest;
 
 alias tokenID = ceres.lexer.token.ID;
 alias tokenPlusPlus = ceres.lexer.token.plusplus;
@@ -380,7 +371,7 @@ class cast_expression : inode
     }
 }
 
-@BlerpTest("test_node_expect_eat_add") unittest
+@("test_node_expect_eat_add") unittest
 {
     class non_abstract_node : node
     {
@@ -438,7 +429,7 @@ class cast_expression : inode
 
 }
 
-@BlerpTest("test_unary_expression") unittest
+@("test_unary_expression") unittest
 {
     /* TODO
        Currently this only tests that unary_expression 
@@ -488,7 +479,7 @@ class cast_expression : inode
    */
 }
 
-@BlerpTest("test_cast_expression") unittest
+@("test_cast_expression") unittest
 {
     import ceres.lexer.location : loc;
 

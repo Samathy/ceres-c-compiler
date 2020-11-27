@@ -3,19 +3,8 @@ import std.exception;
 
 version (unittest)
 {
-    import blerp.blerp;
     import std.stdio : writeln;
-
-    static this()
-    {
-        import core.runtime;
-
-        Runtime.moduleUnitTester = { return true; };
-        runTests!(__MODULE__);
-    }
 }
-
-import blerp.blerp: BlerpTest;
 
 /** 
   Returns true if the object's type matches the given type
@@ -30,7 +19,7 @@ template isTypeOf(base) if (is(base == class))
     }
 }
 
-@BlerpTest("test_isTypeOf_true_when_child") unittest
+@("test_isTypeOf_true_when_child") unittest
 {
     class a
     {
@@ -44,7 +33,7 @@ template isTypeOf(base) if (is(base == class))
     assert(isTypeOf!(a)(b_obj));
 }
 
-@BlerpTest("test_isChildOf_true_when_matches") unittest
+@("test_isChildOf_true_when_matches") unittest
 {
     class a
     {
@@ -512,7 +501,7 @@ version (unittest)
 
 }
 
-@BlerpTest("test_comparing_trees_matches") unittest
+@("test_comparing_trees_matches") unittest
 {
     class container
     {
@@ -545,7 +534,7 @@ version (unittest)
     compare_trees!(container)(t, t2, (a, b) { return a.data.data == b.data.data; });
 }
 
-@BlerpTest("test_tree_add_root_item") unittest
+@("test_tree_add_root_item") unittest
 {
     auto t = new AST!(int).tree();
     t.add_leaf(10);
@@ -558,7 +547,7 @@ version (unittest)
 /** This test tests a contract, which isnt in release code.
     So its almost like we're testing a test.
   */
-@BlerpTest("test_tree_add_root_when_root_exists") unittest
+@("test_tree_add_root_when_root_exists") unittest
 {
     import core.exception : AssertError;
 
@@ -575,7 +564,7 @@ version (unittest)
     assert(false, "Adding a non-root-node without a parent should be caught by the contract");
 }
 
-@BlerpTest("test_tree_add_child") unittest
+@("test_tree_add_child") unittest
 {
     auto t = new AST!(int).tree();
     t.add_leaf(10);
@@ -585,7 +574,7 @@ version (unittest)
     assert(t.root == 10);
 }
 
-@BlerpTest("test_get_child_by_data") unittest
+@("test_get_child_by_data") unittest
 {
     auto t = new AST!(int).tree();
     t.add_leaf(10);
@@ -597,7 +586,7 @@ version (unittest)
     assert(t.root.get_child_by_data(40) == t.root.children[$ - 1]);
 }
 
-@BlerpTest("test_search_children") unittest
+@("test_search_children") unittest
 {
     auto t = new AST!(int).tree();
     t.add_leaf(10);
@@ -612,7 +601,7 @@ version (unittest)
     assert(t.root.search_children_by_data(40) == 2);
 }
 
-@BlerpTest("test_search_for_node") unittest
+@("test_search_for_node") unittest
 {
     auto t = new AST!(int).tree();
     t.add_leaf(10);
@@ -629,7 +618,7 @@ version (unittest)
 
 }
 
-@BlerpTest("test_leaf_opEquals") unittest
+@("test_leaf_opEquals") unittest
 {
     auto l = new AST!(int).leaf(10, null, false);
     auto l2 = new AST!(int).leaf(10, null, false);
@@ -641,7 +630,7 @@ version (unittest)
     assert(l == l2.data, "Leaf data failed");
 }
 
-@BlerpTest("test_leaf_has_parent") unittest
+@("test_leaf_has_parent") unittest
 {
     auto t = new AST!(int).tree();
     t.add_leaf(10);
@@ -650,7 +639,7 @@ version (unittest)
     assert(t.root.children[0].has_parent(t.root));
 }
 
-@BlerpTest("test_leaf_has_child") unittest
+@("test_leaf_has_child") unittest
 {
     auto t = new AST!(int).tree();
     t.add_leaf(10);
@@ -659,7 +648,7 @@ version (unittest)
     assert(t.root.has_child(t.root.children[0]));
 }
 
-@BlerpTest("test_leaf_doesnt_have_parent") unittest
+@("test_leaf_doesnt_have_parent") unittest
 {
     auto t = new AST!(int).tree();
     t.add_leaf(10);
@@ -669,7 +658,7 @@ version (unittest)
     assert(!t.root.children[0].children[0].has_parent(t.root));
 }
 
-@BlerpTest("test_leaf_doesnt_have_child") unittest
+@("test_leaf_doesnt_have_child") unittest
 {
     auto t = new AST!(int).tree();
     t.add_leaf(10);
@@ -690,7 +679,7 @@ version (unittest)
   But, for later optimisation, for tree nodes that are only types ( like keywords ) we might
   want to maintain a pool of objects and just add the same ones, instead of making new objects.
   */
-@BlerpTest("test_leaves_with_same_data") unittest
+@("test_leaves_with_same_data") unittest
 {
     auto t = new AST!(int).tree();
 
