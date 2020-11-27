@@ -574,6 +574,11 @@ template state_template(Range, RangeChar)
                             this.emission_function);
                     next_state.buffer_char(c);
                     return next_state;
+                case '.': 
+                    auto next_state = new state_template!(Range, RangeChar).isOperator(this.f,
+                            this.emission_function);
+                    next_state.buffer_char(c);
+                    return next_state;
 
                 default:
                     throw new stateException("Unexpected punctuation character.: " ~ c);
@@ -1059,7 +1064,7 @@ template state_template(Range, RangeChar)
      */
     class isOperator : state
     {
-        import ceres.lexer.token : semi, mod, lessThan, moreThan, and, or, assign, add, sub, mul, div, token, comma;
+        import ceres.lexer.token : semi, mod, lessThan, moreThan, and, or, assign, add, sub, mul, div, token, comma, stop;
         import ceres.lexer.location : loc;
 
         import std.conv: to;
@@ -1158,6 +1163,10 @@ template state_template(Range, RangeChar)
                 this.emit(new comma(l, cast(immutable char[]) this.character_buffer));
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
+            case ".":
+                this.emit(new stop(l, cast(immutable char[]) this.character_buffer));
+                return new state_template!(Range, RangeChar).start(this.f,
+                        this.emission_function);
             default:
                 throw new stateException("Unknown operator: " ~ to!string(this.character_buffer)); //Please remove this.
             }
@@ -1220,12 +1229,13 @@ template state_template(Range, RangeChar)
     tcase caseSix = { input: cast(char[]) "102937", returns_class: "isInteger" };
     tcase caseSeven = { input: cast(char[]) "10xxx", returns_class: "isInteger", throws: true};
 
-    Tuple!(string,string)[16] punc = [
+    Tuple!(string,string)[17] punc = [
         tuple(")", "isRparen"), tuple("}", "isRparen"), tuple("]", "isRparen"), 
         tuple("(", "isLparen"),tuple("{", "isLparen"), tuple("[", "isLparen"),
         tuple("+","isOperator"),tuple("-","isOperator"), tuple("=","isOperator"),
         tuple("<","isOperator"),tuple(">","isOperator"),tuple("^","isOperator"),
-        tuple("&","isOperator"),tuple("|","isOperator"),tuple(";", "isOperator"), tuple(",", "isOperator")];
+        tuple("&","isOperator"),tuple("|","isOperator"),tuple(";", "isOperator"), 
+        tuple(",", "isOperator"), tuple(".", "isOperator")];
 
     tcase[] puncCases;
 

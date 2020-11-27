@@ -1149,6 +1149,14 @@ class comma : token
     }
 }
 
+class stop : token
+{
+    this(loc location, string token_string)
+    {
+        super(location);
+    }
+}
+
 class stringLiteral : token
 {
     this(loc location, string token_string)
