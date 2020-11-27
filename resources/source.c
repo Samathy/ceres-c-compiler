@@ -1,8 +1,22 @@
+struct wibble
+{ 
+    int a;
+} wibbles;
+
 int main()
 {
 
     int foo = 0;
     int bar = 1;
+
+    struct wibble wobblers;
+
+    wobblers.a = 10;
+
+    struct wibble * hi = &wobblers;
+
+    printf("%i", hi->a);
+
     unsigned char wibble;
 
     if ( foo = bar )
