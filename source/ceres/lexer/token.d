@@ -851,7 +851,7 @@ class operator : token
             //TODO Could add a helper function to print the allowed parenthesis with English joiners.
             throw new Exception(classInfoNameToPlainName(
                     this.classinfo.name) ~ " class cannot be instantiated with something that isnt: " ~ to!string(
-                    operators));
+                    operators ~ " was called with " ~ token_string));
         }
     }
 
