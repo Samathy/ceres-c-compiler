@@ -1064,7 +1064,7 @@ template state_template(Range, RangeChar)
      */
     class isOperator : state
     {
-        import ceres.lexer.token : semi, mod, lessThan, moreThan, and, or, assign, add, sub, mul, div, token, comma, stop;
+        import ceres.lexer.token : semi, mod, lessThan, moreThan, and, or, assign, add, sub, mul, div, token, comma, stop, rightArrow;
         import ceres.lexer.location : loc;
 
         import std.conv: to;
@@ -1091,6 +1091,16 @@ template state_template(Range, RangeChar)
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
             case "-":
+                import ceres.lexer.utils : isNewLine;
+                if (!this.f.empty && !isNewLine(this.f.front()))
+                {
+                    if ( this.character_buffer[0] == '-' && this.f.front() == '>')
+                    {
+                        this.emit(new rightArrow(l, cast(immutable char[]) this.character_buffer));
+                        return new state_template!(Range, RangeChar).start(this.f,
+                                this.emission_function);
+                    }
+                }
                 this.emit(new sub(l, cast(immutable char[]) this.character_buffer));
                 return new state_template!(Range, RangeChar).start(this.f,
                         this.emission_function);
@@ -1379,7 +1389,7 @@ template state_template(Range, RangeChar)
         tuple("+", "add"), tuple("-", "sub"), tuple("*", "mul"), 
         tuple("/", "div"),tuple("%", "mod"), tuple("=", "assign"),
         tuple(">","moreThan"),tuple("<","lessThan"), tuple("&","and"),
-        tuple("|","or"), tuple(";", "semi")];
+        tuple("|","or"), tuple(";", "semi"), tuple("->", "rightArrow")];
 
     tcase[] puncCases;
 

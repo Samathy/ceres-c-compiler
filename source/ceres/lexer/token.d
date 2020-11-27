@@ -1133,6 +1133,14 @@ class notEqualTo : operator
     }
 }
 
+class rightArrow : operator
+{
+    this(loc location, string token_string)
+    {
+        super(location, token_string, ["->"]);
+    }
+}
+
 class semi : token
 {
     this(loc location, string token_string)
