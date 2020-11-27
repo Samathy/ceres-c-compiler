@@ -1141,6 +1141,14 @@ class semi : token
     }
 }
 
+class comma : token
+{
+    this(loc location, string token_string)
+    {
+        super(location);
+    }
+}
+
 class stringLiteral : token
 {
     this(loc location, string token_string)
