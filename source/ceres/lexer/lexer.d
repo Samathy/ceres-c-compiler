@@ -1414,3 +1414,10 @@ template state_template(Range, RangeChar)
 }
 
 
+@BlerpTest("test_logical")  unittest
+{
+    tcase caseOne = { input: cast(char[]) "&&", char_buffer_expected: cast(char[]) "&", emits: true, emits_class: "andand", prefilled_char_buffer: cast(char[]) "&" };
+    tcase caseTwo = { input: cast(char[]) "||", char_buffer_expected: cast(char[]) "|", emits: true, emits_class: "oror", prefilled_char_buffer: cast(char[]) "|" };
+    tcase[] cases = [caseOne, caseTwo];
+    testEmissionState!(state_template!(char[], char).logical, char[], char)(cases);
+}
