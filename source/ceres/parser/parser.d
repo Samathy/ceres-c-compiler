@@ -21,6 +21,8 @@ version (unittest)
     }
 }
 
+import blerp.blerp: BlerpTest;
+
 alias tokenID = ceres.lexer.token.ID;
 alias tokenPlusPlus = ceres.lexer.token.plusplus;
 alias tokenMinusMinus = ceres.lexer.token.minusminus;

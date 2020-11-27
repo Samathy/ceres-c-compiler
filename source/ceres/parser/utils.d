@@ -15,6 +15,8 @@ version (unittest)
     }
 }
 
+import blerp.blerp: BlerpTest;
+
 /** 
   Returns true if the object's type matches the given type
   Also returns true if the given runtime object's superclass is
