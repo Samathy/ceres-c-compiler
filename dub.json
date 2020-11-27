@@ -15,5 +15,5 @@
 	},
 	"description": "A C lexer",
 	"license": "MIT",
-	"name": "c_lex"
+	"name": "cerescc"
 }
