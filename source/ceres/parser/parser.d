@@ -329,7 +329,7 @@ class postfix_expression : inode
             else if (this.expect_eat_add!(tokenMinusMinus))
                 return;
             else
-                this.tree.add_leaf(new postfix_expression(tokens, tree), this.tree.front);
+                this.tree.add_leaf(new primary_expression(tokens, tree), this.tree.front);
         }
 
     }
@@ -337,6 +337,18 @@ class postfix_expression : inode
 
 /** initializer list expression */
 class initializer_list : inode
+{
+    this(token_list tokens, AST!(node).tree tree)
+    {
+        super(tokens, tree);
+        error(format("%s production not implemented", this.classinfo.name));
+        this.eat();
+        this.tree.add_leaf(new void_node(tokens, tree), this.tree.front);
+    }
+}
+
+/** initializer list expression */
+class primary_expression : inode
 {
     this(token_list tokens, AST!(node).tree tree)
     {
