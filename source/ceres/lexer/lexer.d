@@ -1086,7 +1086,7 @@ template state_template(Range, RangeChar)
                 {
                     if ( this.character_buffer[0] == '-' && this.f.front() == '>')
                     {
-                        this.emit(new rightArrow(l, cast(immutable char[]) this.character_buffer));
+                        this.emit(new rightArrow(l, cast(immutable char[]) this.character_buffer~this.f.front()));
                         return new state_template!(Range, RangeChar).start(this.f,
                                 this.emission_function);
                     }
