@@ -864,7 +864,7 @@ class operator : token
 
     private
     {
-        immutable string[] allowed_operators = ["+", "-", "/", "*", "%"];
+        immutable string[] allowed_operators = ["+", "-", "/", "*", "%", "&"];
         string token_string;
     }
 }
