@@ -1,4 +1,4 @@
-name: unittest
+name: Test and Lint
 
 on: [push, pull_request]
 
@@ -8,7 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
-    - uses: mihails-strasuns/setup-dlang@v0
+    - uses: actions/checkout@v2
+    - uses: dlang-community/setup-dlang@v1
+      with:
+        compiler: dmd-latest- 
+    - name: Lint
+      run: dfmt source/
     - name: Test
       run: dub test
