@@ -12,7 +12,10 @@ jobs:
     - uses: dlang-community/setup-dlang@v1
 
     - name: 'Lint'
-      run: dfmt source/
+      run: |
+          dub fetch dfmt 
+          dub build dfmt
+          dub run dfmt -- source/
     - name: 'Build and Test'
       run:  |
         dub build --compiler=$DC
