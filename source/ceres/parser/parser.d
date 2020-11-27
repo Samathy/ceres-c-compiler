@@ -31,6 +31,12 @@ alias tokenLPAREN = ceres.lexer.token.lparen;
 alias tokenRPAREN = ceres.lexer.token.rparen;
 alias tokenUnaryOperator = ceres.lexer.token.unary_operator;
 alias tokenINT = ceres.lexer.token.INT;
+alias tokenLBRACE = ceres.lexer.token.lcurly;
+alias tokenRBRACE = ceres.lexer.token.rcurly;
+alias tokenCOMMA = ceres.lexer.token.comma;
+alias tokenSTOP = ceres.lexer.token.stop;
+alias tokenLSBRACE = ceres.lexer.token.lsquare;
+alias tokenRightArr = ceres.lexer.token.rightArrow;
 
 void error(string msg)
 {
@@ -297,6 +303,49 @@ class type_name : inode
 
 /** postfix expression */
 class postfix_expression : inode
+{
+    this(token_list tokens, AST!(node).tree tree)
+    {
+        super(tokens, tree);
+
+        token t = this.tokens.front();
+
+        if (t.isTypeOf!(tokenLPAREN))
+        {
+            this.expect_eat_add!(tokenLPAREN);
+            this.tree.add_leaf(new type_name(tokens, tree), this.tree.front);
+            this.expect_eat_add!(tokenRPAREN);
+            this.expect_eat_add!(tokenLBRACE);
+            this.tree.add_leaf(new initializer_list(tokens, tree), this.tree.front);
+
+            if (!this.expect_eat_add!(tokenRBRACE) && this.expect_eat_add!(tokenCOMMA))
+                this.expect_eat_add!(tokenRBRACE);
+        }
+
+        else
+        {
+            this.tree.add_leaf(new postfix_expression(tokens, tree), this.tree.front);
+            if (this.expect_eat_add!(tokenLSBRACE))
+                error(format("%s production not implemented", this.classinfo.name));
+            else if (this.expect_eat_add!(tokenLPAREN))
+                error(format("%s production not implemented", this.classinfo.name));
+            else if (this.expect_eat_add!(tokenSTOP))
+                this.expect_eat_add!(tokenID);
+            else if (this.expect_eat_add!(tokenRightArr))
+                this.expect_eat_add!(tokenID);
+            else if (this.expect_eat_add!(tokenPlusPlus))
+                return;
+            else if (this.expect_eat_add!(tokenMinusMinus))
+                return;
+            else
+                this.tree.add_leaf(new postfix_expression(tokens, tree), this.tree.front);
+        }
+
+    }
+}
+
+/** initializer list expression */
+class initializer_list : inode
 {
     this(token_list tokens, AST!(node).tree tree)
     {
